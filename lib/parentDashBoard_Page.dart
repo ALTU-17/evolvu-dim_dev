@@ -1,8 +1,7 @@
 import 'package:evolvu/calender_Page.dart';
-import 'package:evolvu/childDashboad.dart';
 import 'package:evolvu/common/drawerAppBar.dart';
 import 'package:evolvu/parentProfile_Page.dart';
-import 'package:evolvu/student_card.dart';
+import 'package:evolvu/Student/student_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

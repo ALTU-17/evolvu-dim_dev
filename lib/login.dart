@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:device_info/device_info.dart';
 import 'package:evolvu/all_routs.dart';
-import 'package:evolvu/StudentDashboard.dart';
+import 'package:evolvu/Student/StudentDashboard.dart';
 import 'package:evolvu/parentDashBoard_Page.dart';
 import 'package:evolvu/username_page.dart';
 import 'package:firebase_core/firebase_core.dart';

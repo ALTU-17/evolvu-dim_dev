@@ -22,7 +22,7 @@ class CustomTextField extends StatelessWidget {
         IgnorePointer(
           child: FormBuilderTextField(
             name: name,
-            readOnly: true,
+            // readOnly: true,
             focusNode: focusNode,
             decoration: InputDecoration(
               border: const UnderlineInputBorder(),

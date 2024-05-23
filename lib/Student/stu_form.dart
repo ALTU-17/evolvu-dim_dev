@@ -335,27 +335,30 @@ class childd {
 }
 
 class StudentForm extends StatefulWidget {
-  StudentForm({Key? key}) : super(key: key);
+  final String studentId;
+
+  StudentForm(this.studentId);
 
   @override
   _StudentFormState createState() => _StudentFormState();
 }
 
 class _StudentFormState extends State<StudentForm> {
-  String firstName = "";
-  String class_name = "";
-  String class_teacher = "";
-  String roll_no = "";
+  // String firstName = "";
+  // String class_name = "";
+  // String class_teacher = "";
+  // String roll_no = "";
+ 
+  File? file;
   String shortName = "";
-  String academic_yr = "";
-  String reg_id = "";
+  String academic_yrstr = "";
+  String reg_idstr = "";
   String projectUrl = "";
   String url = "";
   String imageUrl = "";
-  String studentId = "";
-  File? file;
-  stuInfoModal? childInfo; // Declare variable to hold childd object
-  Future<void> _getSchoolInfo() async {
+  stuInfoModal? childInfo;
+
+  Future<void> _getSchoolInfo(String studentId) async {
     final prefs = await SharedPreferences.getInstance();
     String? schoolInfoJson = prefs.getString('school_info');
     String? logUrls = prefs.getString('logUrls');
@@ -365,12 +368,12 @@ class _StudentFormState extends State<StudentForm> {
         Map<String, dynamic> logUrlsparsed = json.decode(logUrls);
         print('logUrls====\\\\\11111: $logUrls');
 
-        academic_yr = logUrlsparsed['academic_yr'];
-        reg_id = logUrlsparsed['reg_id'];
+        academic_yrstr = logUrlsparsed['academic_yr'];
+        reg_idstr = logUrlsparsed['reg_id'];
         // shortName = logUrlsparsed['short_name'];
 
-        print('academic_yr ID: $academic_yr');
-        print('reg_id: $reg_id');
+        print('academic_yr ID: $academic_yrstr');
+        print('reg_id: $reg_idstr');
       } catch (e) {
         print('Error parsing school info: $e');
       }
@@ -405,8 +408,8 @@ class _StudentFormState extends State<StudentForm> {
     http.Response response = await http.post(
       Uri.parse(url + "get_childs"),
       body: {
-        'reg_id': reg_id,
-        'academic_yr': academic_yr,
+        'reg_id': reg_idstr,
+        'academic_yr': academic_yrstr,
         'short_name': shortName
       },
     );
@@ -442,7 +445,7 @@ class _StudentFormState extends State<StudentForm> {
       // class_teacher = childInfo['class_teacher'];
     }
 
-    imageUrl = projectUrl+"uploads/student_image/${childInfo?.studentId}.jpg";
+    imageUrl = projectUrl+"uploads/student_image/$studentId.jpg";
 
     print('Image URL@@@@@: $imageUrl');
     //
@@ -524,11 +527,19 @@ class _StudentFormState extends State<StudentForm> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    _getSchoolInfo(widget.studentId);
+
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _getSchoolInfo();
-    return FutureBuilder(
-        future: _getSchoolInfo(),
-    builder: (context, snapshot) {
+    // _getSchoolInfo();
+    // return FutureBuilder(
+    //     future: _getSchoolInfo(widget.studentId),
+    // builder: (context, snapshot) {
           return SizedBox(
             height: 120.h,
             child: Padding(
@@ -559,7 +570,8 @@ class _StudentFormState extends State<StudentForm> {
                                       fit: BoxFit.contain,
                                     )
                                         : Image.asset(
-                                      'assets/boy.png',
+                                      childInfo?.gender == 'M' ? 'assets/boy.png' : 'assets/girl.png', // Replace with your actual image paths
+
                                       fit: BoxFit.contain,
                                     ),
                                   ),
@@ -591,8 +603,8 @@ class _StudentFormState extends State<StudentForm> {
 
                           CustomTextField(
                             label: 'First Name',
-                            name: 'First Name',
-                            initialValue: childInfo?.firstName ?? '', // Access first_name here
+                            name: 'First a',
+                            initialValue: childInfo?.firstName ?? '',// Access first_name here
                           ),
 
                           CustomTextField(
@@ -825,7 +837,7 @@ class _StudentFormState extends State<StudentForm> {
               ),
             ),
           );
-      },
-    );
+    //   },
+    // );
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:evolvu/login.dart';
-import 'package:evolvu/StudentDashboard.dart';
 import 'package:evolvu/parentDashBoard_Page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

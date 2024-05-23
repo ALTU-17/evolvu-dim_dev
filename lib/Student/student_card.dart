@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:evolvu/all_routs.dart';
-import 'package:evolvu/student_profile_page.dart';
+import 'package:evolvu/Student/student_profile_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,8 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:math' as math;
 
+import '../common/rotatedDivider_Card.dart';
 import 'StudentDashboard.dart';
-import 'common/rotatedDivider_Card.dart';
 
 class StudentCard extends StatefulWidget {
   @override

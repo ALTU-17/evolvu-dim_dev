@@ -1,8 +1,8 @@
 
 import 'package:evolvu/login.dart';
-import 'package:evolvu/student_profile_page.dart';
+import 'package:evolvu/Student/student_profile_page.dart';
 import 'package:evolvu/username_page.dart';
-import 'package:evolvu/StudentDashboard.dart';
+import 'package:evolvu/Student/StudentDashboard.dart';
 import 'package:flutter/material.dart';
 
 //const String dashBoardPage = '/dashBoardPage';
