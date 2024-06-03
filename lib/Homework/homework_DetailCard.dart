@@ -1,26 +1,13 @@
-import 'package:evolvu/Teacher/teacher_DeatilPage.dart';
 import 'package:evolvu/all_routs.dart';
 import 'package:evolvu/const/const_teacherNoteCard.dart';
+import 'package:evolvu/Homework/homeWork_DeatilPage.dart';
+import 'package:evolvu/Teacher/teacher_DeatilPage.dart';
 import 'package:evolvu/Teacher/teacher_noteCard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class TeacherDetailCard extends StatelessWidget {
-  final String name;
-  final String date;
-  final String note;
-  final String subject;
-
-  final String className;
-
-  const TeacherDetailCard({
-    Key? key,
-    required this.name,
-    required this.date,
-    required this.note,
-    required this.subject,
-    required this.className,
-  }) : super(key: key);
+class HomeWorkDetailCard extends StatelessWidget {
+  const HomeWorkDetailCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,33 +36,37 @@ class TeacherDetailCard extends StatelessWidget {
           children: [
             SizedBox(height: 80.h),
             Text(
-              "Teacher Note Details",
+              "HomeWork Details",
               style: TextStyle(
                 fontSize: 20.sp, // Adjusted for better visibility
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 10.h),
+           // SizedBox(height: 10.h),
             Expanded(
               child: ListView.builder(
                 padding: EdgeInsets.only(top: 10.h),
                 itemCount: notes.length,
                 itemBuilder: (context, index) {
-                  final note1 = notes[index];
+                  final note = notes[index];
                   return Padding(
-                    padding: const EdgeInsets.all(3.0),
-                    child: Center(
-                      child: TeacherDetailPage(
-                        info: Info(
-                          className: className,
-                          subject: subject,
-                          date: date,
-                          description: note,
+                      padding: const EdgeInsets.all(3.0),
+                      child: Center(
+                        child: HomeWorkDetailPage(
+                          homeworkInfo: HomeworkInfo(
+                            className: '4 C',
+                            subject: 'Games',
+                            assignedDate: 'Games',
+                            submissionDate: '4 C',
+                            homework: '4 C',
+                            homeworkStatus: '4 C',
+                            teachersComment: '4 C',
+                            attachment: '4 C',
+                           
+                          ),
                         ),
-                      ),
-                    ),
-                  );
+                      ));
                 },
               ),
             ),

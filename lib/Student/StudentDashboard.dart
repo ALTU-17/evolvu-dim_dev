@@ -11,11 +11,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
 
 class CardItem {
+  final String? imageUrl;
   final String imagePath;
   final String title;
-  final Function(BuildContext) onTap;
+  final Function(BuildContext context) onTap;
 
   CardItem({
+    this.imageUrl,
     required this.imagePath,
     required this.title,
     required this.onTap,
@@ -29,6 +31,8 @@ class StudentActivityPage extends StatelessWidget {
   final String className;
   final String classTeacher;
   final String gender;
+  final String classId;
+  final String secId;
 
   StudentActivityPage({
     required this.studentId,
@@ -37,6 +41,8 @@ class StudentActivityPage extends StatelessWidget {
     required this.className,
     required this.classTeacher,
     required this.gender,
+    required this.classId,
+    required this.secId,
   });
 
   String shortName = "";
@@ -84,9 +90,9 @@ class StudentActivityPage extends StatelessWidget {
     }
 
     http.Response response = await http.post(
-      Uri.parse(url + "get_childs"),
+      Uri.parse(url + "get_student"),
       body: {
-        'reg_id': reg_id,
+        'student_id': studentId,
         'academic_yr': academic_yr,
         'short_name': shortName
       },
@@ -122,7 +128,7 @@ class StudentActivityPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<CardItem> cardItems = [
       CardItem(
-        imagePath: gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
+        imagePath: gender == 'F' ? 'assets/girl.png' : 'assets/boy.png', // Local fallback image
         title: 'Student Profile',
         onTap: (context) {
           Navigator.push(
@@ -140,9 +146,10 @@ class StudentActivityPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TeacherNotePage(),
+              builder: (context) => TeacherNotePage(studentId: studentId,classId: classId,secId:secId),
             ),
-          );        },
+          );
+          },
       ),
       // CardItem(
       //   imagePath: 'assets/new_module.png', // Path to the new module image
@@ -194,10 +201,18 @@ class StudentActivityPage extends StatelessWidget {
                           child: Card(
                             child: Row(
                               children: [
-                                SizedBox.square(
-                                  dimension: 60.w,
-                                  child: Image.asset(
-                                    gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 5.0),
+                                  child: SizedBox.square(
+                                    dimension: 60.w,
+                                    child: imageUrl.isNotEmpty
+                                        ? Image.network(
+                                      imageUrl + '?timestamp=${DateTime.now().millisecondsSinceEpoch}',
+                                      height: 60,
+                                    )
+                                        : Image.asset(
+                                      gender == 'F' ? 'assets/girl.png' : 'assets/boy.png', // Local fallback image
+                                    ),
                                   ),
                                 ),
                                 Expanded(
@@ -319,24 +334,96 @@ class StudentActivityPage extends StatelessWidget {
               ),
             ],
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard),
-                label: 'Dashboard',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.calendar_today),
-                label: 'Calendar',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
-              ),
-            ],
-          ),
+          // bottomNavigationBar: BottomNavigationBar(
+          //   items: const <BottomNavigationBarItem>[
+          //     BottomNavigationBarItem(
+          //       icon: Icon(Icons.dashboard),
+          //       label: 'Dashboard',
+          //     ),
+          //     BottomNavigationBarItem(
+          //       icon: Icon(Icons.calendar_today),
+          //       label: 'Calendar',
+          //     ),
+          //     BottomNavigationBarItem(
+          //       icon: Icon(Icons.person),
+          //       label: 'Profile',
+          //     ),
+          //   ],
+          // ),
+          bottomNavigationBar: buildMyNavBar(context),
         );
       },
+
+
     );
   }
 }
+Container buildMyNavBar(BuildContext context) {
+  return Container(
+      height: 80.h,
+      decoration: const BoxDecoration(
+        color: Colors.blue,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                enableFeedback: true,
+                onPressed: () {
+                  Navigator.of(context).pop(0);
+                },
+                icon: const Icon(
+                  Icons.dashboard,
+                  color: Colors.white,
+
+                  size: 30,
+                ),
+              ),
+              Text('Dashboard', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                enableFeedback: false,
+                onPressed: () {
+                  Navigator.of(context).pop(1);
+
+                },
+                icon: const Icon(
+                  Icons.calendar_month,
+                  color: Colors.white,
+
+                  size: 30,
+                ),
+              ),
+              const Text('Calendar', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                enableFeedback: false,
+                onPressed: () {
+                  Navigator.of(context).pop(2);
+
+                },
+                icon: const Icon(
+                  Icons.person,
+                  color: Colors.white,
+
+                  size: 30,
+                ),
+              ),
+              Text('Profile', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+        ],
+      ),
+      );
+      }
