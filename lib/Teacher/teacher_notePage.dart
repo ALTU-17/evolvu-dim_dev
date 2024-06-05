@@ -196,10 +196,12 @@ class _TeacherNotePageState extends State<TeacherNotePage> {
                                 MaterialPageRoute(
                                   builder: (_) => TeacherDetailCard(
                                     name: note.name,
+                                    notesId: note.notesId,
                                     date: note.date,
                                     note: note.description,
                                     subject: note.subjectName,
                                     className: note.className,
+                                    imageList: note.imageList,
                                   ),
                                 ),
                               );

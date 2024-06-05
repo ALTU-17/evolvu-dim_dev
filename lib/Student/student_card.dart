@@ -16,7 +16,6 @@ class StudentCard extends StatefulWidget {
 }
 
 class _StudentCardState extends State<StudentCard> {
-
   List<Map<String, dynamic>> students = [];
   String shortName = "";
   String url = "";
@@ -30,14 +29,14 @@ class _StudentCardState extends State<StudentCard> {
 
     if (logUrls != null) {
       try {
-        Map<String, dynamic> logUrlsparsed = json.decode(logUrls);
-        academicYr = logUrlsparsed['academic_yr'];
-        regId = logUrlsparsed['reg_id'];
+        Map<String, dynamic> logUrlsParsed = json.decode(logUrls);
+        academicYr = logUrlsParsed['academic_yr'];
+        regId = logUrlsParsed['reg_id'];
       } catch (e) {
-        print('Error parsing school info: $e');
+        print('Error parsing log URLs: $e');
       }
     } else {
-      print('School info not found in SharedPreferences.');
+      print('Log URLs not found in SharedPreferences.');
     }
 
     if (schoolInfoJson != null) {
@@ -53,7 +52,7 @@ class _StudentCardState extends State<StudentCard> {
     }
 
     http.Response response = await http.post(
-      Uri.parse("${url}get_childs"),
+      Uri.parse("$url/get_childs"),
       body: {
         'reg_id': regId,
         'academic_yr': academicYr,
@@ -106,12 +105,13 @@ class _StudentCardState extends State<StudentCard> {
                 className: students[index]['class_name'] + students[index]['section_name'],
                 classTeacher: students[index]['class_teacher'],
                 gender: students[index]['gender'],
-                studentId: students[index]['student_id'], // Pass the student_id
-                classId: students[index]['class_id'], // Pass the student_id
-                secId: students[index]['section_id'], // Pass the student_id
+                studentId: students[index]['student_id'],
+                classId: students[index]['class_id'],
+                secId: students[index]['section_id'],
                 shortName: shortName,
                 url: url,
                 academicYr: academicYr,
+                onTap: widget.onTap,
               );
             },
           ),
@@ -120,21 +120,7 @@ class _StudentCardState extends State<StudentCard> {
     );
   }
 }
-class MyData {
-  final String id;
-  // final String email;
-  // Add other properties as needed
 
-  MyData({required this.id});
-
-  factory MyData.fromJson(Map<String, dynamic> json) {
-    return MyData(
-      id: json['_id'],
-      // email: json['email'],
-      // Map other properties here
-    );
-  }
-}
 class StudentCardItem extends StatefulWidget {
   final String firstName;
   final String rollNo;
@@ -147,8 +133,9 @@ class StudentCardItem extends StatefulWidget {
   final String academicYr;
   final String classId;
   final String secId;
+  final Function(int index) onTap;
 
-  StudentCardItem({
+  const StudentCardItem({
     required this.firstName,
     required this.rollNo,
     required this.className,
@@ -160,6 +147,7 @@ class StudentCardItem extends StatefulWidget {
     required this.academicYr,
     required this.classId,
     required this.secId,
+    required this.onTap,
   });
 
   @override
@@ -188,13 +176,9 @@ class _StudentCardItemState extends State<StudentCardItem> {
     print('Response percentage: ${response.body}');
 
     if (response.statusCode == 200) {
-       String apiValue = response.body; // Adjust this line based on your actual API response
-
-      // final Map<String, dynamic> data = json.decode(response.body);
-      // final myData = MyData.fromJson(apiValue);
-      print('ID: $apiValue');
+      String apiValue = response.body;
       setState(() {
-        attendance =apiValue;
+        attendance = apiValue;
       });
     } else {
       setState(() {
@@ -223,9 +207,8 @@ class _StudentCardItemState extends State<StudentCardItem> {
             ),
           ),
         );
-        // if (x==null) return;
-        // onTap (x as int);
-
+        if (x == null) return;
+        widget.onTap(x as int);
       },
       child: SizedBox(
         height: 110.h,
@@ -234,46 +217,42 @@ class _StudentCardItemState extends State<StudentCardItem> {
           child: Card(
             child: Row(
               children: [
-                SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox.square(
-                        dimension: 60.w,
-                        child: Image.asset(
-                          widget.gender == 'F' ? 'assets/girl.png' : 'assets/boy.png', // Replace with your actual image paths
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox.square(
+                      dimension: 60.w,
+                      child: Image.asset(
+                        widget.gender == 'F' ? 'assets/girl.png' : 'assets/boy.png',
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(3, 3, 0, 0),
+                      child: RichText(
+                        text: TextSpan(
+                          text: 'Attendance ',
+                          style: TextStyle(fontSize: 10.sp, color: Colors.black),
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: '$attendance%',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ],
                         ),
                       ),
-                      attendance != null
-                          ? Padding(
-                        padding: EdgeInsets.fromLTRB(3, 3, 0, 0),
-                        child: RichText(
-                          text: TextSpan(
-                            text: 'Attendance ',
-                            style: TextStyle(fontSize: 10.sp, color: Colors.black), // Default style
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: '$attendance%',
-                                style: TextStyle(color: Colors.blue), // Change the color here
-                              ),
-                            ],
-                          ),
-                        )
-                      )
-                          : SizedBox.shrink(),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 Expanded(
                   flex: 0,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 0.0),
+                    padding: const EdgeInsets.only(left: 8.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           widget.firstName,
-                          style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14.sp),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
                         ),
                         Text(
                           "RollNo: ${widget.rollNo}",

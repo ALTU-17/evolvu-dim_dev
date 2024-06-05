@@ -9,6 +9,8 @@ import 'package:evolvu/Teacher/teacher_DeatilCard.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'Attachment.dart';
+
 class TeacherNote {
   final String notesId;
   final String date;
@@ -18,6 +20,7 @@ class TeacherNote {
   final String className;
   final String publish;
   final String read_status;
+  final List<Attachment> imageList;
 
   TeacherNote({
     required this.notesId,
@@ -28,6 +31,8 @@ class TeacherNote {
     required this.className,
     required this.publish,
     required this.read_status,
+    required this.imageList,
+
   });
 
   factory TeacherNote.fromJson(Map<String, dynamic> json) {
@@ -40,10 +45,25 @@ class TeacherNote {
       className: json['classname'],
       publish: json['publish'],
       read_status: json['read_status'],
+      imageList: (json['image_list'] as List)
+          .map((item) => Attachment.fromJson(item))
+          .toList(),
     );
   }
 }
-
+// class Attachment {
+//   final String imageName;
+//   final double fileSize;
+//
+//   Attachment({required this.imageName, required this.fileSize});
+//
+//   factory Attachment.fromJson(Map<String, dynamic> json) {
+//     return Attachment(
+//       imageName: json['image_name'],
+//       fileSize: json['file_size'],
+//     );
+//   }
+// }
 // note_card.dart
 
 
