@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class LabeledDropdown extends StatelessWidget {
   final String label;
   final List<String> options;
+  final String? initialValue;
   final Function(String?) onChanged;
 
   const LabeledDropdown({
@@ -10,6 +11,7 @@ class LabeledDropdown extends StatelessWidget {
     required this.label,
     required this.options,
     required this.onChanged,
+    this.initialValue,
   }) : super(key: key);
 
   @override
@@ -19,6 +21,7 @@ class LabeledDropdown extends StatelessWidget {
       children: [
         Text("$label "),
         DropdownButton<String>(
+          value: initialValue,
           items: options.map((String value) {
             return DropdownMenuItem<String>(
               value: value,

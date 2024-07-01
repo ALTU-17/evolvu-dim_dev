@@ -1,6 +1,6 @@
 import 'package:evolvu/common/Common_dropDownFiled.dart';
 import 'package:evolvu/common/common_textFiled.dart';
-import 'package:evolvu/stu_form.dart';
+import 'package:evolvu/Student/stu_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -8,8 +8,10 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StudentProfilePage extends StatelessWidget {
-  const StudentProfilePage({Key? key}) : super(key: key);
-
+  final String studentId;
+  StudentProfilePage({
+  required this.studentId,
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +66,7 @@ class StudentProfilePage extends StatelessWidget {
                 height: 720.h,
                 child:  Padding(
                   padding: EdgeInsets.all(4.0),
-                  child: StudentForm(),
+                  child: StudentForm(studentId),
                 ),
               ),
             ],
