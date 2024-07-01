@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:evolvu/Homework/homeWork_notePage.dart';
+import 'package:evolvu/Remark/remark_notePage.dart';
 import 'package:evolvu/login.dart';
 import 'package:evolvu/Student/student_profile_page.dart';
 import 'package:evolvu/Teacher/teacher_notePage.dart';
@@ -134,7 +136,8 @@ class StudentActivityPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StudentProfilePage(studentId: studentId),
+              builder: (context) => StudentProfilePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
+                ,),
             ),
           );
         },
@@ -146,7 +149,34 @@ class StudentActivityPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TeacherNotePage(studentId: studentId,classId: classId,secId:secId),
+              builder: (context) => TeacherNotePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
+                  ,classId: classId,secId:secId),
+            ),
+          );
+          },
+      ),
+      CardItem(
+        imagePath: 'assets/books.png',
+        title: 'Homework',
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeWorkNotePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
+                  ,classId: classId,secId:secId),
+            ),
+          );
+          },
+      ),
+      CardItem(
+        imagePath: 'assets/studying.png',
+        title: 'Remark',
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RemarkNotePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
+                  ,classId: classId,secId:secId),
             ),
           );
           },

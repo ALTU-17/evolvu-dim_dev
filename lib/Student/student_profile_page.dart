@@ -9,8 +9,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StudentProfilePage extends StatelessWidget {
   final String studentId;
+  final String academic_yr;
+  final String shortName;
   StudentProfilePage({
-  required this.studentId,
+  required this.studentId,required this.academic_yr,required this.shortName,
   });
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,7 @@ class StudentProfilePage extends StatelessWidget {
         //         ),
         toolbarHeight: 50.h,
         title: Text(
-          "SASC EvolvU Smart Parent App(2024-2025)",
+          "$shortName EvolvU Smart Parent App($academic_yr)",
           style: TextStyle(fontSize: 14.sp, color: Colors.white),
         ),
         backgroundColor: Colors.transparent,
@@ -73,22 +75,22 @@ class StudentProfilePage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Events',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.dashboard),
+      //       label: 'Dashboard',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.calendar_today),
+      //       label: 'Events',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.person),
+      //       label: 'Profile',
+      //     ),
+      //   ],
+      // ),
     );
   }
 }

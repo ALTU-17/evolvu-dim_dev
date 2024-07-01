@@ -51,23 +51,31 @@ class _StudentCardState extends State<StudentCard> {
       print('School info not found in SharedPreferences.');
     }
 
-    http.Response response = await http.post(
-      Uri.parse("$url/get_childs"),
-      body: {
-        'reg_id': regId,
-        'academic_yr': academicYr,
-        'short_name': shortName,
-      },
-    );
-    print('Response get_childs: ${response.body}');
+    if (url.isNotEmpty) {
+      try {
+        http.Response response = await http.post(
+          Uri.parse(url+"get_childs"),
+          body: {
+            'reg_id': regId,
+            'academic_yr': academicYr,
+            'short_name': shortName,
+          },
+        );
+        print('Response get_childs: ${response.body}');
 
-    if (response.statusCode == 200) {
-      List<dynamic> apiResponse = json.decode(response.body);
-      setState(() {
-        students = List<Map<String, dynamic>>.from(apiResponse);
-      });
+        if (response.statusCode == 200) {
+          List<dynamic> apiResponse = json.decode(response.body);
+          setState(() {
+            students = List<Map<String, dynamic>>.from(apiResponse);
+          });
+        } else {
+          print('Failed to load students with status code: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('Error during http request: $e');
+      }
     } else {
-      print('Failed to load students');
+      print('URL is empty, cannot make HTTP request.');
     }
   }
 

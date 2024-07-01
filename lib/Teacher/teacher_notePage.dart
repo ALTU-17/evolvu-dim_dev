@@ -8,10 +8,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http; // Import your model
 
 class TeacherNotePage extends StatefulWidget {
+  final String academic_yr;
+  final String shortName;
   final String studentId;
   final String classId;
   final String secId;
-  TeacherNotePage({ required this.studentId, required this.classId, required this.secId});
+  TeacherNotePage({ required this.studentId,required this.academic_yr,required this.shortName, required this.classId, required this.secId});
 
   @override
   _TeacherNotePageState createState() => _TeacherNotePageState();
@@ -19,8 +21,6 @@ class TeacherNotePage extends StatefulWidget {
 
 class _TeacherNotePageState extends State<TeacherNotePage> {
   late Future<List<TeacherNote>> futureNotes;
-  String shortName = "";
-  String academic_yr = "";
   String reg_id = "";
   String url = "";
 
@@ -36,10 +36,10 @@ class _TeacherNotePageState extends State<TeacherNotePage> {
         Map<String, dynamic> logUrlsparsed = json.decode(logUrls);
         print('logUrls====\\\\\11111: $logUrls');
 
-        academic_yr = logUrlsparsed['academic_yr'];
+        // academic_yr = logUrlsparsed['academic_yr'];
         reg_id = logUrlsparsed['reg_id'];
 
-        print('academic_yr ID: $academic_yr');
+        // print('academic_yr ID: $academic_yr');
         print('reg_id: $reg_id');
       } catch (e) {
         print('Error parsing school info: $e');
@@ -52,10 +52,10 @@ class _TeacherNotePageState extends State<TeacherNotePage> {
       try {
         Map<String, dynamic> parsedData = json.decode(schoolInfoJson);
 
-        shortName = parsedData['short_name'];
+        // shortName = parsedData['short_name'];
         url = parsedData['url'];
 
-        print('Short Name: $shortName');
+        // print('Short Name: $shortName');
         print('URL: $url');
       } catch (e) {
         print('Error parsing school info: $e');
@@ -69,8 +69,8 @@ class _TeacherNotePageState extends State<TeacherNotePage> {
         'class_id': widget.classId,
         'section_id': widget.secId,
         'parent_id': reg_id,
-        'academic_yr': academic_yr,
-        'short_name': shortName
+        'academic_yr': widget.academic_yr,
+        'short_name': widget.shortName
       },
     );
     print('Error parsing school info: $response');
@@ -113,7 +113,7 @@ class _TeacherNotePageState extends State<TeacherNotePage> {
         'notes_id': notesId,
         'parent_id': reg_id,
         'read_date': formattedDate,
-        'short_name': shortName
+        'short_name': widget.shortName
       },
     );
     if (response.statusCode == 200) {
@@ -136,7 +136,7 @@ class _TeacherNotePageState extends State<TeacherNotePage> {
       appBar: AppBar(
         toolbarHeight: 50.h,
         title: Text(
-          "SASC EvolvU Smart Parent App(2024-2025)",
+          "${widget.shortName} EvolvU Smart Parent App(${widget.academic_yr})",
           style: TextStyle(fontSize: 14.sp, color: Colors.white),
         ),
         backgroundColor: Colors.transparent,
@@ -190,11 +190,13 @@ class _TeacherNotePageState extends State<TeacherNotePage> {
                             classname: note.className,
                             readStatus: note.read_status,
                             onTap: () {
-                              updateReadStatus(note.notesId);
+                              // updateReadStatus(note.notesId);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => TeacherDetailCard(
+                                    shortName: widget.shortName,
+                                    academic_yr: widget.academic_yr,
                                     name: note.name,
                                     notesId: note.notesId,
                                     date: note.date,

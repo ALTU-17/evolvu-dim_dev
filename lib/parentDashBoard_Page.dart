@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:evolvu/calender_Page.dart';
 import 'package:evolvu/common/drawerAppBar.dart';
 import 'package:evolvu/parentProfile_Page.dart';
@@ -5,6 +7,8 @@ import 'package:evolvu/Student/student_card.dart';
 import 'package:evolvu/username_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ParentDashBoardPage extends StatefulWidget {
   const ParentDashBoardPage({Key? key}) : super(key: key);
@@ -14,12 +18,62 @@ class ParentDashBoardPage extends StatefulWidget {
   _ParentDashBoardPageState createState() => _ParentDashBoardPageState();
 }
 
+String shortName = "";
+String academic_yr = "";
+String reg_id = "";
+String url = "";
+
+Future<void> _getSchoolInfo() async {
+  final prefs = await SharedPreferences.getInstance();
+  String? schoolInfoJson = prefs.getString('school_info');
+  String? logUrls = prefs.getString('logUrls');
+  print('logUrls====\\\\\: $logUrls');
+  if (logUrls != null) {
+    try {
+      Map<String, dynamic> logUrlsparsed = json.decode(logUrls);
+      print('logUrls====\\\\\11111: $logUrls');
+
+      academic_yr = logUrlsparsed['academic_yr'];
+      reg_id = logUrlsparsed['reg_id'];
+
+      print('academic_yr ID: $academic_yr');
+      print('reg_id: $reg_id');
+    } catch (e) {
+      print('Error parsing school info: $e');
+    }
+  } else {
+    print('School info not found in SharedPreferences.');
+  }
+
+  if (schoolInfoJson != null) {
+    try {
+      Map<String, dynamic> parsedData = json.decode(schoolInfoJson);
+
+      shortName = parsedData['short_name'];
+      url = parsedData['url'];
+
+      print('Short Name: $shortName');
+      print('URL: $url');
+    } catch (e) {
+      print('Error parsing school info: $e');
+    }
+  } else {
+    print('School info not found in SharedPreferences.');
+  }
+}
+
 class _ParentDashBoardPageState extends State<ParentDashBoardPage> {
   int pageIndex = 0;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    _getSchoolInfo();
 
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final pages = [
       StudentCard(
         onTap: (int index) {
@@ -36,7 +90,7 @@ class _ParentDashBoardPageState extends State<ParentDashBoardPage> {
       backgroundColor: Colors.blue,
       appBar: AppBar(
         title: Text(
-          "SASC EvolvU Smart Parent App(2024-2025)",
+          "$shortName EvolvU Smart Parent App($academic_yr)",
           style: TextStyle(fontSize: 14.sp, color: Colors.white),
         ),
         backgroundColor: Colors.pink,
@@ -48,12 +102,12 @@ class _ParentDashBoardPageState extends State<ParentDashBoardPage> {
             child: Icon(Icons.menu, color: Colors.red),
           ),
           onPressed: () {
-            // showDialog(
-            //   context: context,
-            //   builder: (BuildContext context) {
-            //     return CustomPopup();
-            //   },
-            // );
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return CustomPopup();
+              },
+            );
           },
         ),
       ),
@@ -169,6 +223,66 @@ class CardItem {
   });
 }
 
+Future<void> showLogoutConfirmationDialog(BuildContext context) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false, // User must tap a button
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          'Logout Confirmation',
+          style: TextStyle(fontSize: 22.sp),
+        ),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Do you want to logout?'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () {
+              Navigator.of(context).pop(); // Dismiss the dialog
+            },
+          ),
+          TextButton(
+            child: Text(
+              'Logout',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop(); // Dismiss the dialog
+              logout(context); // Call the logout function
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> logout(BuildContext context) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.clear(); // Clear all stored data
+
+  // Optionally show a toast message
+  Fluttertoast.showToast(
+    msg: 'Logged out successfully!',
+    backgroundColor: Colors.black45,
+    textColor: Colors.white,
+    toastLength: Toast.LENGTH_LONG,
+    gravity: ToastGravity.CENTER,
+  );
+
+  // Navigate to the login screen
+  Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (context) => UserNamePage()),
+    (Route<dynamic> route) => false,
+  );
+}
+
 class CustomPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -177,9 +291,7 @@ class CustomPopup extends StatelessWidget {
         imagePath: 'assets/logout.png',
         title: 'LogOut',
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => UserNamePage()),
-          );
+          showLogoutConfirmationDialog(context);
         },
       ),
 
