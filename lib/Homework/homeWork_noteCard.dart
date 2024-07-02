@@ -3,6 +3,7 @@ import 'package:evolvu/Teacher/Attachment.dart';
 import 'package:evolvu/common/common_style.dart';
 import 'package:flutter/material.dart';
 import 'package:evolvu/all_routs.dart';
+import 'package:intl/intl.dart';
 
 import 'homeWork_notePage.dart';
 
@@ -29,7 +30,7 @@ class Homework {
   final String className;
   // final String division;
   final String subjectName;
-  final String homeworkRLogId;
+  // final String homeworkRLogId;
   final String readStatus;
   final List<Attachment> imageList;
 
@@ -54,39 +55,38 @@ class Homework {
     required this.className,
     // required this.division,
     required this.subjectName,
-    required this.homeworkRLogId,
+    // required this.homeworkRLogId,
     required this.readStatus,
     required this.imageList,
   });
 
   factory Homework.fromJson(Map<String, dynamic> json) {
     return Homework(
-      homeworkId: json['homework_id'],
-      description: json['description'],
-      teacherId: json['teacher_id'],
-      sectionId: json['section_id'],
-      smId: json['sm_id'],
-      classId: json['class_id'],
-      endDate: json['end_date'],
-      startDate: json['start_date'],
-      publishDate: json['publish_date'],
-      academicYr: json['academic_yr'],
-      publish: json['publish'],
-      commentId: json['comment_id'],
-      studentId: json['student_id'],
-      parentId: json['parent_id'],
-      homeworkStatus: json['homework_status'],
-      comment: json['comment'],
-      parentComment: json['parent_comment'],
-      className: json['class_name']+json['division'],
-      // division: json['division'],
-      subjectName: json['subject_name'],
-      homeworkRLogId: json['homework_r_log_id'],
-      readStatus: json['read_status'],
-      imageList: (json['image_list'] as List)
+      homeworkId: json['homework_id'] ?? '',
+      description: json['description'] ?? '',
+      teacherId: json['teacher_id'] ?? '',
+      sectionId: json['section_id'] ?? '',
+      smId: json['sm_id'] ?? '',
+      classId: json['class_id'] ?? '',
+      endDate: json['end_date'] ?? '',
+      startDate: json['start_date'] ?? '',
+      publishDate: json['publish_date'] ?? '',
+      academicYr: json['academic_yr'] ?? '',
+      publish: json['publish'] ?? '',
+      commentId: json['comment_id'] ?? '',
+      studentId: json['student_id'] ?? '',
+      parentId: json['parent_id'] ?? '',
+      homeworkStatus: json['homework_status'] ?? '',
+      comment: json['comment'] ?? '',
+      parentComment: json['parent_comment'] ?? '',
+      className: (json['class_name'] ?? '') + (json['division'] ?? ''),
+      subjectName: json['subject_name'] ?? '',
+      readStatus: json['read_status'] ?? '',
+      imageList: (json['image_list'] as List? ?? [])
           .map((item) => Attachment.fromJson(item))
           .toList(),
     );
+
   }
 }
 
@@ -108,16 +108,11 @@ class HomeWorkNoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DateTime parsedDate = DateTime.parse(assignedDate);
+    DateTime parsedDate1 = DateTime.parse(submissionDate);
+    String formatted_assignedDate = DateFormat('dd-MM-yyyy').format(parsedDate);
+    String formatted_submissionDate = DateFormat('dd-MM-yyyy').format(parsedDate1);
     return GestureDetector(
-      // onTap: () {
-      //   Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) => HomeWorkDetailCard(),
-      //     ),
-      //   );
-      //   // Navigator.of(context).pushNamed(homeWorkDetailCard);
-      // },
       onTap: onTap,
       child: Card(
         color: Colors.white,
@@ -125,7 +120,7 @@ class HomeWorkNoteCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(10.0),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(15.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -133,9 +128,9 @@ class HomeWorkNoteCard extends StatelessWidget {
                 children: [
                   Image.asset(
                     'assets/books.png',
-                    height: 60,
+                    height: 50,
                   ),
-                  SizedBox(width: 25),
+                  SizedBox(width: 15),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -174,7 +169,7 @@ class HomeWorkNoteCard extends StatelessWidget {
                                // style: Commonstyle.lableBold,
                             ),
                             TextSpan(
-                              text: assignedDate,
+                              text: formatted_assignedDate,
 
                             ),
                           ],
@@ -192,7 +187,7 @@ class HomeWorkNoteCard extends StatelessWidget {
                               ),
                             ),
                             TextSpan(
-                              text: submissionDate,
+                              text: formatted_submissionDate,
                               style: const TextStyle(
                                 fontSize: 14.0,
                                 fontWeight: FontWeight.normal,

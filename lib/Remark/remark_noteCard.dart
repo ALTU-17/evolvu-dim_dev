@@ -2,6 +2,7 @@ import 'package:evolvu/common/common_style.dart';
 import 'package:flutter/material.dart';
 import 'package:evolvu/all_routs.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 
 import '../Teacher/Attachment.dart';
 
@@ -92,10 +93,10 @@ class RemarkNoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DateTime parsedDate = DateTime.parse(date);
+    String formattedDate = DateFormat('dd-MM-yyyy').format(parsedDate);
     return GestureDetector(
-      onTap: () {
-        // Navigator.of(context).pushNamed(remarkDetailCard);
-      },
+      onTap: onTap,
       child: Stack(
         children: [
           Card(
@@ -104,7 +105,7 @@ class RemarkNoteCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10.0),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -112,9 +113,9 @@ class RemarkNoteCard extends StatelessWidget {
                     children: [
                       Image.asset(
                         'assets/studying.png',
-                        height: 60,
+                        height: 50,
                       ),
-                      SizedBox(width: 25),
+                      SizedBox(width: 15),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -122,13 +123,15 @@ class RemarkNoteCard extends StatelessWidget {
                             TextSpan(
                               children: [
                               const TextSpan(
-                              text: 'Date: ',
+                              text: 'Date: ',style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                                 // style: Commonstyle.lableBold,
 
 
                             ),
                             TextSpan(
-                              text: date,
+                              text: formattedDate,
 
                             ),
                           ],
@@ -139,7 +142,9 @@ class RemarkNoteCard extends StatelessWidget {
                         TextSpan(
                           children: [
                             const TextSpan(
-                              text: 'Teacher: ',
+                              text: 'Teacher: ',style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                                // style: Commonstyle.lableBold,
                             ),
                             TextSpan(
@@ -149,22 +154,17 @@ class RemarkNoteCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 5),
-
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            const TextSpan(
-                              text: 'Remark Subject: ',
-                               // style: Commonstyle.lableBold,
+                          const SizedBox(height: 5),
+                          Text(
+                            'Remark Subject: ',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
                             ),
-                            TextSpan(
-                              text: remarksubject,
-
-                            ),
-                          ],
-                        ),
-                      ),
+                          ),
+                          Text(
+                            remarksubject,
+                            overflow: TextOverflow.visible,
+                          ),
                         ],
                       ),
                     ],

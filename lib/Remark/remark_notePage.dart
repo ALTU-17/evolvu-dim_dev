@@ -42,10 +42,10 @@ class _RemarkNotePage extends State<RemarkNotePage> {
         academic_yr = logUrlsparsed['academic_yr'];
         reg_id = logUrlsparsed['reg_id'];
       } catch (e) {
-        print('Error parsing school info: $e');
+        print('Error parsing log URLs: $e');
       }
     } else {
-      print('School info not found in SharedPreferences.');
+      print('Log URLs not found in SharedPreferences.');
     }
 
     if (schoolInfoJson != null) {
@@ -60,8 +60,17 @@ class _RemarkNotePage extends State<RemarkNotePage> {
       print('School info not found in SharedPreferences.');
     }
 
+    // print('API URL: $url+get_premark');
+    // print('Request Body:');
+    // print({
+    //   'student_id': widget.studentId,
+    //   'parent_id': reg_id,
+    //   'academic_yr': academic_yr,
+    //   'short_name': shortName,
+    // });
+
     final response = await http.post(
-      Uri.parse(url + 'get_premarks'),
+      Uri.parse(url + 'get_premark'),
       body: {
         'student_id': widget.studentId,
         'parent_id': reg_id,
@@ -71,12 +80,13 @@ class _RemarkNotePage extends State<RemarkNotePage> {
     );
 
     if (response.statusCode == 200) {
-      print('Response Remarkkkkk++++: ${response.body}');
+      print('Response: ${response.body}');
 
       List jsonResponse = json.decode(response.body);
       return jsonResponse.map((remark) => Remark.fromJson(remark)).toList();
     } else {
-      throw Exception('Failed to load remarks${response}');
+      print('Failed to load remarks: ${response.statusCode}');
+      throw Exception('Failed to load remarks: ${response.statusCode}');
     }
   }
 
@@ -147,6 +157,8 @@ class _RemarkNotePage extends State<RemarkNotePage> {
                                     remarksubject: remark.remarkSubject,
                                     imageList: remark.imageList,
                                     description: remark.remarkDesc,
+                                    remarkId:remark.remarkId,
+                                    remarkDate: remark.remarkDate,
                                   ),
                                 ),
                               );
