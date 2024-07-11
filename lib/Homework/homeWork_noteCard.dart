@@ -139,11 +139,11 @@ class HomeWorkNoteCard extends StatelessWidget {
                           children: [
                             TextSpan(
                               text: 'Subject:  ',
-                                // style: Commonstyle.lableBold,
-                              style: const TextStyle(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                style: Commonstyle.lableBold,
+                              // style: const TextStyle(
+                              //   fontSize: 14.0,
+                              //   fontWeight: FontWeight.bold,
+                              // ),
 
                             ),
                             TextSpan(
@@ -162,11 +162,8 @@ class HomeWorkNoteCard extends StatelessWidget {
                           children: [
                             TextSpan(
                               text: 'Assigned Date: ',
-                              style: const TextStyle(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                               // style: Commonstyle.lableBold,
+
+                               style: Commonstyle.lableBold,
                             ),
                             TextSpan(
                               text: formatted_assignedDate,

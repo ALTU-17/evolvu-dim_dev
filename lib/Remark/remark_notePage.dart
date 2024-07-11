@@ -89,8 +89,56 @@ class _RemarkNotePage extends State<RemarkNotePage> {
       throw Exception('Failed to load remarks: ${response.statusCode}');
     }
   }
+  Future<void> updateReadStatus(String remarkId) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? schoolInfoJson = prefs.getString('school_info');
+    String? logUrls = prefs.getString('logUrls');
 
-  @override
+    String shortName = "";
+    String reg_id = "";
+    String url = "";
+
+    if (logUrls != null) {
+      try {
+        Map<String, dynamic> logUrlsparsed = json.decode(logUrls);
+        reg_id = logUrlsparsed['reg_id'];
+      } catch (e) {
+        print('Error parsing log URLs: $e');
+      }
+    }
+
+    if (schoolInfoJson != null) {
+      try {
+        Map<String, dynamic> parsedData = json.decode(schoolInfoJson);
+        shortName = parsedData['short_name'];
+        url = parsedData['url'];
+      } catch (e) {
+        print('Error parsing school info: $e');
+      }
+    }
+
+    final response = await http.post(
+      Uri.parse(url + 'remark_read_log_create'),
+      body: {
+        'remark_id': remarkId,
+        'parent_id': reg_id,
+        'read_date': "2024-07-08",
+        'short_name': shortName,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('remark_read_log_create: ${response.body}');
+      setState(() {
+        futureRemarks = fetchRemarks();
+      });
+    } else {
+      print('Failed to update read status: ${response.statusCode}');
+      throw Exception('Failed to update read status: ${response.statusCode}');
+    }
+  }
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -147,7 +195,9 @@ class _RemarkNotePage extends State<RemarkNotePage> {
                             date: remark.remarkDate,
                             teacher: remark.teacherName,
                             remarksubject: remark.remarkSubject,
-                            onTap: () {
+                            readStatus: remark.readStatus,
+                            onTap: () async {
+                              await updateReadStatus(remark.remarkId);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

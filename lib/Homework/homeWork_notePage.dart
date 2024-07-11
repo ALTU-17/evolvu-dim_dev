@@ -74,13 +74,20 @@ class _HomeWorkNotePage extends State<HomeWorkNotePage> {
       },
     );
 
+    print('Error parsing school info: response'+response.body);
     if (response.statusCode == 200) {
-      print('Error parsing school info: response'+response.body);
+      if (response.body.isEmpty) {
+        throw Exception('No homework assigned');
+      }
 
-      List jsonResponse = json.decode(response.body);
-      return jsonResponse.map((homework) => Homework.fromJson(homework)).toList();
+      try {
+        List jsonResponse = json.decode(response.body);
+        return jsonResponse.map((homework) => Homework.fromJson(homework)).toList();
+      } catch (e) {
+        throw Exception('Error parsing JSON: $e');
+      }
     } else {
-      throw Exception('Failed to load homework');
+      throw Exception('Failed to load homework: ${response.statusCode}');
     }
   }
 

@@ -12,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
 
+import '../Notice_SMS/notice_notePage.dart';
+
 class CardItem {
   final String? imageUrl;
   final String imagePath;
@@ -176,6 +178,19 @@ class StudentActivityPage extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => RemarkNotePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
+                  ,classId: classId,secId:secId),
+            ),
+          );
+          },
+      ),
+      CardItem(
+        imagePath: 'assets/notice.png',
+        title: 'Notice/SMS',
+        onTap: (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NoticeNotePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
                   ,classId: classId,secId:secId),
             ),
           );

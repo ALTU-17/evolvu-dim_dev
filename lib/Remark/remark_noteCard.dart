@@ -51,24 +51,24 @@ class Remark {
 
   factory Remark.fromJson(Map<String, dynamic> json) {
     return Remark(
-      remarkId: json['remark_id'],
-      remarkDesc: json['remark_desc'],
-      remarkSubject: json['remark_subject'],
-      remarkType: json['remark_type'],
-      remarkDate: json['remark_date'],
-      publishDate: json['publish_date'],
-      classId: json['class_id'],
-      sectionId: json['section_id'],
-      studentId: json['student_id'],
-      subjectId: json['subject_id'],
-      teacherId: json['teacher_id'],
-      academicYr: json['academic_yr'],
-      publish: json['publish'],
-      acknowledge: json['acknowledge'],
-      isDelete: json['isDelete'],
-      teacherName: json['teachername'],
-      remarkRLogId: json['remark_r_log_id'],
-      readStatus: json['read_status'],
+      remarkId: json['remark_id']?.toString() ?? '',
+      remarkDesc: json['remark_desc']?.toString() ?? '',
+      remarkSubject: json['remark_subject']?.toString() ?? '',
+      remarkType: json['remark_type']?.toString() ?? '',
+      remarkDate: json['remark_date']?.toString() ?? '',
+      publishDate: json['publish_date']?.toString() ?? '',
+      classId: json['class_id']?.toString() ?? '',
+      sectionId: json['section_id']?.toString() ?? '',
+      studentId: json['student_id']?.toString() ?? '',
+      subjectId: json['subject_id']?.toString() ?? '',
+      teacherId: json['teacher_id']?.toString() ?? '',
+      academicYr: json['academic_yr']?.toString() ?? '',
+      publish: json['publish']?.toString() ?? '',
+      acknowledge: json['acknowledge']?.toString() ?? '',
+      isDelete: json['isDelete']?.toString() ?? '',
+      teacherName: json['teachername']?.toString() ?? '',
+      remarkRLogId: json['remark_r_log_id']?.toString() ?? '',
+      readStatus: json['read_status']?.toString() ?? '',
       imageList: (json['image_list'] as List)
           .map((item) => Attachment.fromJson(item))
           .toList(),
@@ -80,6 +80,7 @@ class RemarkNoteCard extends StatelessWidget {
   final String date;
   final String teacher;
   final String remarksubject;
+  final String readStatus;
   final VoidCallback onTap;
 
 
@@ -88,6 +89,7 @@ class RemarkNoteCard extends StatelessWidget {
     required this.date,
     required this.teacher,
     required this.remarksubject,
+    required this.readStatus,
     required this.onTap,
   }) : super(key: key);
 
@@ -95,12 +97,14 @@ class RemarkNoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     DateTime parsedDate = DateTime.parse(date);
     String formattedDate = DateFormat('dd-MM-yyyy').format(parsedDate);
+    Color cardColor = readStatus == '0' ? Colors.grey : Colors.white;
+
     return GestureDetector(
       onTap: onTap,
       child: Stack(
         children: [
           Card(
-            color: Colors.white,
+            color: cardColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
             ),
