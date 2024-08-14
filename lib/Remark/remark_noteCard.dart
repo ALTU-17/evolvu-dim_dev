@@ -1,6 +1,5 @@
 import 'package:evolvu/common/common_style.dart';
 import 'package:flutter/material.dart';
-import 'package:evolvu/all_routs.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:evolvu/login.dart';
-import 'package:evolvu/parentDashBoard_Page.dart';
+import 'package:evolvu/Parent/parentDashBoard_Page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'api.dart';
+import 'Utils&Config/api.dart';
 
 class SchoolInfo {
   final String schoolId;
@@ -76,10 +76,18 @@ class _LoginDemoState extends State<UserNamePage> {
 
   bool shouldShowText = false; // Set this based on your condition
   bool shouldShowText2 = false; // Set this based on your condition
+  bool _isLoading = false; // Add this line
 
 // Modify your login function to store school info in shared preferences
   void loginfun(String emailstr) async {
+
+    setState(() {
+      _isLoading = true; // Start the loading indicator
+    });
+
     try {
+      print('emailstr body: $emailstr');
+
       Response response = await post(
         Uri.parse(ROOT),
         body: {'user_id': emailstr},
@@ -129,6 +137,10 @@ class _LoginDemoState extends State<UserNamePage> {
       }
     } catch (e) {
       print('Exception: $e');
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop the loading indicator
+      });
     }
   }
 
@@ -139,7 +151,7 @@ class _LoginDemoState extends State<UserNamePage> {
    //   If user is already logged in, navigate to QRScannerPage
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => ParentDashBoardPage()),
+        MaterialPageRoute(builder: (_) => ParentDashBoardPage(academic_yr:academic_yr,shortName: shortName)),
       );
     }
   }
@@ -233,6 +245,9 @@ class _LoginDemoState extends State<UserNamePage> {
                     ),
 
                     SizedBox(height: 30),
+                    _isLoading
+                        ? CircularProgressIndicator() // Show progress indicator when loading
+                        :
                     Container(
                       height: 40,
                       width: 180,

@@ -2,7 +2,6 @@ import 'package:evolvu/Homework/homework_DetailCard.dart';
 import 'package:evolvu/Teacher/Attachment.dart';
 import 'package:evolvu/common/common_style.dart';
 import 'package:flutter/material.dart';
-import 'package:evolvu/all_routs.dart';
 import 'package:intl/intl.dart';
 
 import 'homeWork_notePage.dart';

@@ -1,4 +1,3 @@
-import 'package:evolvu/all_routs.dart';
 import 'package:evolvu/const/const_teacherNoteCard.dart';
 import 'package:evolvu/Remark/remark_DetailPage.dart';
 

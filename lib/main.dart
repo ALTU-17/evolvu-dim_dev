@@ -1,9 +1,10 @@
-import 'package:evolvu/all_routs.dart';
 import 'package:evolvu/login.dart';
 import 'package:evolvu/username_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'Utils&Config/all_routs.dart';
 
 void main() => runApp(MyApp());
 

@@ -12,7 +12,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
 
+import '../ExamTimeTable/examTimeTable.dart';
+import '../ExamTimeTable/timeTable.dart';
 import '../Notice_SMS/notice_notePage.dart';
+import '../common/rotatedDivider_Card.dart';
 
 class CardItem {
   final String? imageUrl;
@@ -118,14 +121,20 @@ class StudentActivityPage extends StatelessWidget {
       },
     );
 
-    print('get_student_profile_images_details status code: ${get_student_profile_images_details.statusCode}');
-    print('get_student_profile_images_details Response body====:>  ${get_student_profile_images_details.body}');
+    // print('get_student_profile_images_details status code: ${get_student_profile_images_details.statusCode}');
+    // print('get_student_profile_images_details Response body====:>  ${get_student_profile_images_details.body}');
 
     if (get_student_profile_images_details.statusCode == 200) {
       Map<String, dynamic> responseData = json.decode(get_student_profile_images_details.body);
       imageUrl = responseData['image_url'];
       print('Image URL: $imageUrl');
+    if (imageUrl.hashCode == 404) {
+      print('Image not found, using default image.');
+      imageUrl = ""; // or set a default image URL if available
+    } else {
+      print('Error fetching image details: ${get_student_profile_images_details.statusCode}');
     }
+  }
   }
 
   @override
@@ -196,6 +205,81 @@ class StudentActivityPage extends StatelessWidget {
           );
           },
       ),
+      CardItem(
+        imagePath: 'assets/calendar.png',
+        title: 'Exam/TimeTable',
+
+        onTap: (context) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                scrollable: true,
+
+                content:
+                Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        // Navigator.of(context).pushNamed(timeTablePage);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TimeTablePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
+                                ,classId: classId,secId:secId,className:className),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Image.asset( 'assets/calendar.png',),
+
+                          const Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: Text("TimeTable"),
+                          )
+
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 15,),
+                    GestureDetector(
+                      onTap: () {
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ExamTimeTablePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
+                                  ,classId: classId,secId:secId,className:className),
+                            ),
+                          );
+                      },
+                      child: Row(
+                        children: [
+                          SizedBox(
+                              height: 50,
+                              child: Image.asset('assets/examt.webp')),
+
+                          const Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: Text("ExamTimeTable"),
+                          )
+
+                        ],
+                      ),
+                    ),
+
+
+                  ],
+                ),
+
+              );
+            },
+          );
+        },
+
+      ),
       // CardItem(
       //   imagePath: 'assets/new_module.png', // Path to the new module image
       //   title: 'New Module',
@@ -261,28 +345,34 @@ class StudentActivityPage extends StatelessWidget {
                                   ),
                                 ),
                                 Expanded(
-                                  flex: 2,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "$firstName",
-                                        style: TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        "RollNo: $rollNo",
-                                        style: TextStyle(fontSize: 10.sp, color: Colors.red),
-                                      ),
-                                    ],
+                                  flex: 0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          firstName,
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
+                                        ),
+                                        Text(
+                                          "RollNo: $rollNo",
+                                          style: TextStyle(fontSize: 10.sp, color: Colors.red),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                                 Transform.rotate(
-                                  child: Container(
-                                    width: 2.w,
-                                    height: 70.h,
-                                    color: Color.fromARGB(255, 175, 167, 167),
-                                  ),
                                   angle: -math.pi / 180.0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Container(
+                                      width: 2.w,
+                                      height: 70.h,
+                                      color: Color.fromARGB(255, 175, 167, 167),
+                                    ),
+                                  ),
                                 ),
                                 Expanded(
                                   child: Column(
@@ -293,24 +383,17 @@ class StudentActivityPage extends StatelessWidget {
                                         style: TextStyle(fontWeight: FontWeight.bold),
                                       ),
                                       Text(
-                                        "$className",
+                                       className,
                                         style: TextStyle(fontSize: 10.sp, color: Colors.red),
                                       ),
                                     ],
                                   ),
                                 ),
-                                Transform.rotate(
-                                  child: Container(
-                                    width: 2.w,
-                                    height: 70.h,
-                                    color: Color.fromARGB(255, 175, 167, 167),
-                                  ),
-                                  angle: -math.pi / 180.0,
-                                ),
+                                const RotatedDivider(),
                                 Expanded(
                                   flex: 2,
                                   child: Padding(
-                                    padding: const EdgeInsets.all(5.0),
+                                    padding: const EdgeInsets.all(0.0),
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
@@ -319,7 +402,7 @@ class StudentActivityPage extends StatelessWidget {
                                           style: TextStyle(fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          "$classTeacher",
+                                          classTeacher,
                                           style: TextStyle(fontSize: 10.sp, color: Colors.red),
                                         ),
                                       ],

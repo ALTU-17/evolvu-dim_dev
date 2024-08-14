@@ -1,12 +1,11 @@
 import 'dart:convert';
 import 'package:evolvu/Homework/homeWork_notePage.dart';
-import 'package:evolvu/all_routs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../DownloadHelper.dart';
+import '../Utils&Config/DownloadHelper.dart';
 import '../Teacher/Attachment.dart';
 
 class HomeworkInfo {

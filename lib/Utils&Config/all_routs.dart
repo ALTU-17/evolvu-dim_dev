@@ -2,15 +2,14 @@ import 'package:evolvu/calender_Page.dart';
 
 import 'package:evolvu/login.dart';
 
-import 'package:evolvu/parentDashBoard_Page.dart';
-import 'package:evolvu/parentProfile_Page.dart';
+import 'package:evolvu/Parent/parentDashBoard_Page.dart';
+import 'package:evolvu/Parent/parentProfile_Page.dart';
 
 import 'package:evolvu/username_page.dart';
 
 import 'package:flutter/material.dart';
 
-import 'Student/StudentDashboard.dart';
-import 'Student/student_profile_page.dart';
+
 
 //const String dashBoardPage = '/dashBoardPage';
 //const String loginPage = "/loginPage";
@@ -43,8 +42,8 @@ class RouterConfigs {
         // return MaterialPageRoute(builder: (_) => StudentActivityPage());
     // case childDashBoardBoardPage:
     // return MaterialPageRoute(builder: (_) => ChildDashBoardBoardPage());
-      case parentDashBoardPage:
-        return MaterialPageRoute(builder: (_) => ParentDashBoardPage());
+    //   case parentDashBoardPage:
+    //     return MaterialPageRoute(builder: (_) => ParentDashBoardPage());
       case studentProfilePage:
       //   return MaterialPageRoute(builder: (_) => StudentProfilePage());
       // case teacherNotePage:

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:evolvu/Parent/parentDashBoard_Page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,6 +79,7 @@ class _StudentCardState extends State<StudentCard> {
       print('URL is empty, cannot make HTTP request.');
     }
   }
+
 
   @override
   void initState() {
@@ -164,11 +166,47 @@ class StudentCardItem extends StatefulWidget {
 
 class _StudentCardItemState extends State<StudentCardItem> {
   String attendance = "Loading...";
+  List<Map<String, dynamic>> exams = [];
 
   @override
   void initState() {
     super.initState();
     _fetchAttendance();
+    _fetchExams();
+  }
+
+  Future<void> _fetchExams() async {
+    List<Map<String, dynamic>> examData = await _fetchTodaysExams();
+    setState(() {
+      exams = examData;
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchTodaysExams() async {
+    try {
+      print('regid: $reg_id');
+
+      final response = await http.post(
+        Uri.parse('${widget.url}get_todays_exam'),
+        body: {
+          'short_name': widget.shortName,
+          'reg_id': reg_id,
+          'academic_yr': widget.academicYr,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> examList = json.decode(response.body);
+        // Assuming we are dealing with one student's exam data
+        return List<Map<String, dynamic>>.from(examList);
+      } else {
+        print('Failed to load exams: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching exams: $e');
+      return [];
+    }
   }
 
   Future<void> _fetchAttendance() async {
@@ -218,109 +256,202 @@ class _StudentCardItemState extends State<StudentCardItem> {
         if (x == null) return;
         widget.onTap(x as int);
       },
-      child: SizedBox(
-        height: 110.h,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 3, 8, 0),
-          child: Card(
-            child: Row(
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox.square(
-                      dimension: 60.w,
-                      child: Image.asset(
-                        widget.gender == 'F' ? 'assets/girl.png' : 'assets/boy.png',
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(3, 3, 0, 0),
-                      child: RichText(
-                        text: TextSpan(
-                          text: 'Attendance ',
-                          style: TextStyle(fontSize: 10.sp, color: Colors.black),
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: '$attendance%',
-                              style: TextStyle(color: Colors.blue),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Expanded(
-                  flex: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          widget.firstName,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
-                        ),
-                        Text(
-                          "RollNo: ${widget.rollNo}",
-                          style: TextStyle(fontSize: 10.sp, color: Colors.red),
-                        ),
-                      ],
+      child: Column(
+        children: [
+          _buildStudentInfoCard(),
+          if (exams.isNotEmpty) _buildExamList(), // Show exam list only if there are exams
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStudentInfoCard() {
+    return SizedBox(
+      height: 100.h,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        child: Card(
+          child: Row(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox.square(
+                    dimension: 55.w,
+                    child: Image.asset(
+                      widget.gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
                     ),
                   ),
-                ),
-                Transform.rotate(
-                  angle: -math.pi / 180.0,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Container(
-                      width: 2.w,
-                      height: 70.h,
-                      color: Color.fromARGB(255, 175, 167, 167),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(3, 3, 0, 0),
+                    child: RichText(
+                      text: TextSpan(
+                        text: 'Attendance ',
+                        style: TextStyle(fontSize: 10.sp, color: Colors.black),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '$attendance%',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
+                ],
+              ),
+              Expanded(
+                flex: 0,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Class",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        widget.firstName,
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
                       ),
                       Text(
-                        widget.className,
+                        "RollNo: ${widget.rollNo}",
                         style: TextStyle(fontSize: 10.sp, color: Colors.red),
                       ),
                     ],
                   ),
                 ),
-                const RotatedDivider(),
-                Expanded(
-                  flex: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.all(0.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Teacher",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          widget.classTeacher,
-                          style: TextStyle(fontSize: 10.sp, color: Colors.red),
-                        ),
-                      ],
-                    ),
+              ),
+              Transform.rotate(
+                angle: -math.pi / 180.0,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Container(
+                    width: 2.w,
+                    height: 70.h,
+                    color: Color.fromARGB(255, 175, 167, 167),
                   ),
                 ),
-              ],
-            ),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Class",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      widget.className,
+                      style: TextStyle(fontSize: 10.sp, color: Colors.red),
+                    ),
+                  ],
+                ),
+              ),
+              const RotatedDivider(),
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Teacher",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        widget.classTeacher,
+                        style: TextStyle(fontSize: 10.sp, color: Colors.red),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+
+  Widget _buildExamList() {
+    // Define the name you want to filter by
+    String filterName = widget.firstName; // Replace 'John' with the desired first_name
+
+    // Filter the exams list to only include those with the matching first_name
+    List<Map<String, dynamic>> filteredExams = exams.where((exam) {
+      return widget.firstName == filterName;
+    }).toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+      child: Column(
+        children: filteredExams.map((exam) {
+          // Parse the date from the response
+          DateTime examDate = DateTime.parse(exam['date']);
+          DateTime today = DateTime.now();
+          DateTime tomorrow = today.add(Duration(days: 1));
+
+          // Determine if the date is Today, Tomorrow, or another day
+          String displayDate;
+          if (_isSameDay(examDate, today)) {
+            displayDate = 'Today';
+          } else if (_isSameDay(examDate, tomorrow)) {
+            displayDate = 'Tomorrow';
+          } else {
+            displayDate = exam['date']; // Use the original date format if not Today or Tomorrow
+          }
+
+          // Check if this is a "Study Leave"
+          bool isStudyLeave = exam['study_leave'] == 'Y' && (exam['s_name'] == null || exam['s_name'].isEmpty);
+
+          return Container(
+            margin: EdgeInsets.symmetric(vertical: 4.0),
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: _isSameDay(examDate, tomorrow) ? Colors.grey[300] : Colors.white, // Gray for Tomorrow, white otherwise
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.firstName.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  displayDate, // Show "Today", "Tomorrow", or the original date
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  isStudyLeave ? 'Study Leave' : (exam['s_name'] ?? ''),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                    color: isStudyLeave ? Colors.red : Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+// Helper method to check if two DateTime objects represent the same calendar day
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
+  }
+
+
 }

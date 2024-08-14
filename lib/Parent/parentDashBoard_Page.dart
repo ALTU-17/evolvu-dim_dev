@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:evolvu/calender_Page.dart';
 import 'package:evolvu/common/drawerAppBar.dart';
-import 'package:evolvu/parentProfile_Page.dart';
+import 'package:evolvu/Parent/parentProfile_Page.dart';
 import 'package:evolvu/Student/student_card.dart';
 import 'package:evolvu/username_page.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +10,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../aboutUs.dart';
+import '../changePasswordPage.dart';
+
 class ParentDashBoardPage extends StatefulWidget {
-  const ParentDashBoardPage({Key? key}) : super(key: key);
+  final String academic_yr;
+  final String shortName;
+   ParentDashBoardPage({required this.academic_yr,required this.shortName});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -21,6 +26,7 @@ class ParentDashBoardPage extends StatefulWidget {
 String shortName = "";
 String academic_yr = "";
 String reg_id = "";
+String user_id = "";
 String url = "";
 
 Future<void> _getSchoolInfo() async {
@@ -33,6 +39,7 @@ Future<void> _getSchoolInfo() async {
       Map<String, dynamic> logUrlsparsed = json.decode(logUrls);
       print('logUrls====\\\\\11111: $logUrls');
 
+      user_id = logUrlsparsed['user_id'];
       academic_yr = logUrlsparsed['academic_yr'];
       reg_id = logUrlsparsed['reg_id'];
 
@@ -90,7 +97,7 @@ class _ParentDashBoardPageState extends State<ParentDashBoardPage> {
       backgroundColor: Colors.blue,
       appBar: AppBar(
         title: Text(
-          "$shortName EvolvU Smart Parent App($academic_yr)",
+          "${widget.shortName} EvolvU Smart Parent App(${widget.academic_yr})",
           style: TextStyle(fontSize: 14.sp, color: Colors.white),
         ),
         backgroundColor: Colors.pink,
@@ -292,6 +299,26 @@ class CustomPopup extends StatelessWidget {
         title: 'LogOut',
         onTap: () {
           showLogoutConfirmationDialog(context);
+        },
+      ),
+      CardItem(
+        imagePath: 'assets/aboutus.png',
+        title: 'About Us',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => AboutUsPage(academic_yr:academic_yr,shortName: shortName)),
+          );
+        },
+      ),
+      CardItem(
+        imagePath: 'assets/password.png',
+        title: 'Change Password',
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => ChangePasswordPage(academicYear:academic_yr,shortName: shortName, userID: user_id, url: url,)),
+          );
         },
       ),
 

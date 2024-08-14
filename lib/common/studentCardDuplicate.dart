@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:evolvu/all_routs.dart';
 import 'package:evolvu/common/common_style.dart';
 import 'package:evolvu/common/rotatedDivider_Card.dart';
 import 'package:flutter/cupertino.dart';

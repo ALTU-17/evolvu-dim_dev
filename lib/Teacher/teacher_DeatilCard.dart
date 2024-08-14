@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http; // Import your model
 
-import '../DownloadHelper.dart';
+import '../Utils&Config/DownloadHelper.dart';
 import 'Attachment.dart';
 
 class TeacherDetailCard extends StatelessWidget {

@@ -2,9 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info/device_info.dart';
-import 'package:evolvu/all_routs.dart';
 import 'package:evolvu/Student/StudentDashboard.dart';
-import 'package:evolvu/parentDashBoard_Page.dart';
+import 'package:evolvu/Parent/parentDashBoard_Page.dart';
 import 'package:evolvu/username_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -15,7 +14,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Login.dart';
-import 'api.dart';
+import 'Utils&Config/api.dart';
+import 'forgotPassword.dart';
 import 'main.dart';
 
 class LogUrls {
@@ -64,6 +64,8 @@ class LoginPage extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
 }
+String shortName1 = "";
+String academic_yr1 = "";
 
 class _LoginState extends State<LoginPage> {
   TextEditingController password = TextEditingController();
@@ -71,14 +73,14 @@ class _LoginState extends State<LoginPage> {
   bool shouldShowText2 = false; // Set this based on your condition
   bool _passwordVisible = false;
   bool shouldShowText = false; // Set this based on your condition
-  String shortName = "";
+  bool _isLoading = false; // Add this line
 
-  String Acdstr = "";
   String url = "";
 
   @override
   void initState() {
     super.initState();
+
     // _initializeFirebase(); // Initialize Firebase
     getDeviceId(); // Initialize Firebase
     email = TextEditingController(text: widget.emailstr);
@@ -98,19 +100,12 @@ class _LoginState extends State<LoginPage> {
   }
 
 
-  Future<void> _initializeFirebase() async {
-    await Firebase.initializeApp();
-    _getToken(); // Retrieve Firebase Messaging token after Firebase initialization
-  }
-
-  Future<void> _getToken() async {
-    FirebaseMessaging.instance.getToken().then((value) {
-      String? token = value;
-      print('on message $token');
-    });
-  }
-
   void log(String ema, String pass) async {
+
+    setState(() {
+      _isLoading = true; // Start the loading indicator
+    });
+
     try {
       final prefs = await SharedPreferences.getInstance();
       String? schoolInfoJson = prefs.getString('school_info');
@@ -193,7 +188,7 @@ class _LoginState extends State<LoginPage> {
           //             },
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => ParentDashBoardPage()),
+            MaterialPageRoute(builder: (_) => ParentDashBoardPage(academic_yr:academicYr,shortName: shortName)),
           );
         }
       } else {
@@ -206,6 +201,10 @@ class _LoginState extends State<LoginPage> {
       }
     } catch (e) {
       print('Exception: $e');
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop the loading indicator
+      });
     }
   }
 
@@ -330,7 +329,11 @@ class _LoginState extends State<LoginPage> {
                           padding: const EdgeInsets.only(right: 30.0),
                           child: TextButton(
                             onPressed: () {
-                              _getToken;
+                              // Fluttertoast.showToast(msg: "$shortName abcd $academic_yr");
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => ForgotPasswordPage(widget.emailstr,shortName: shortName,academic_yr:academic_yr)),
+                              );
 
                               // Handle "Forgot password"
                             },
@@ -368,7 +371,9 @@ class _LoginState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(height: 10),
-                    ElevatedButton(
+                    _isLoading
+                        ? CircularProgressIndicator() // Show progress indicator when loading
+                        : ElevatedButton(
                       onPressed: () {
 
                         if(password.text.toString().isEmpty){

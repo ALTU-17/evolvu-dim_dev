@@ -6,8 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../DownloadHelper.dart';
 import '../Teacher/Attachment.dart';
+import '../Utils&Config/DownloadHelper.dart';
 
 class RemarkInfo {
   final String description;

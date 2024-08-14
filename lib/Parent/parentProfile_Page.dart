@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:evolvu/common/Common_dropDownFiled.dart';
 import 'package:evolvu/common/common_textFiled.dart';
-import 'package:evolvu/parentDashBoard_Page.dart';
+import 'package:evolvu/Parent/parentDashBoard_Page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,7 +12,7 @@ import 'package:http/http.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'main.dart';
+import '../main.dart';
 
 class ParentDet {
   String? parentId;
@@ -131,8 +131,6 @@ class _ParentProfilePage extends State<ParentProfilePage> {
   bool isLoading = true; // Add a loading state
   String? _selectedOption; // State variable to keep track of selected option
   bool _radioEnabled = true; // State variable to control radio button interactivity
-
-
 
 
   Future<void> _getSchoolInfo() async {
