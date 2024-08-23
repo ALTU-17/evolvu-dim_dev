@@ -157,6 +157,9 @@ class NoteCard extends StatelessWidget {
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
+                overflow: TextOverflow.ellipsis, // This ensures the text is truncated with ellipsis if too long
+                softWrap: false, // Prevents text from wrapping to the next line
+                maxLines: 2,
               ),
             ],
           ),

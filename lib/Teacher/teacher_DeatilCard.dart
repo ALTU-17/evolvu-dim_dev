@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -154,140 +156,142 @@ class TeacherDetailCard extends StatelessWidget {
               end: Alignment.bottomCenter,
             ),
           ),
-          child: Column(
-            children: [
-              SizedBox(height: 80.h),
-              Text(
-                "Teacher Note Details",
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 80.h),
+                Text(
+                  "Teacher Note Details",
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              SizedBox(height: 10.h),
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Name: $name',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
+                SizedBox(height: 10.h),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Name: $name',
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 10.h),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 250),
-                            child: Text(
-                              'Class: $className',
+                            SizedBox(height: 10.h),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 250),
+                              child: Text(
+                                'Class: $className',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10.h),
+                            Text(
+                              'Subject: $subject',
                               style: TextStyle(
                                 fontSize: 16.sp,
                               ),
                             ),
-                          ),
-                          SizedBox(height: 10.h),
-                          Text(
-                            'Subject: $subject',
-                            style: TextStyle(
-                              fontSize: 16.sp,
+                            SizedBox(height: 10.h),
+                            Text(
+                              'Date: $date',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 10.h),
-                          Text(
-                            'Date: $date',
-                            style: TextStyle(
-                              fontSize: 16.sp,
+                            SizedBox(height: 10.h),
+                            Text(
+                              'Note: $note',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 10.h),
-                          Text(
-                            'Note: $note',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                            ),
-                          ),
-                          SizedBox(height: 20.h),
-                          if (imageList.isNotEmpty)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Attachments:',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
+                            SizedBox(height: 20.h),
+                            if (imageList.isNotEmpty)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Attachments:',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                ...imageList.map((attachment) {
-                                  bool isFileNotUploaded = (attachment.fileSize / 1024) == 0.00;
-                                  return ListTile(
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Adjust padding
-                                    leading: Icon(Icons.file_download),
-
-                                    title: isFileNotUploaded
-                                        ? Text(
-                                      'File is not uploaded properly',
-                                      style: TextStyle(fontSize: 14.sp, color: Colors.red),
-                                    )
-                                        : Text(
-                                      attachment.imageName,
-                                      style: TextStyle(fontSize: 14.sp),
-                                    ),
-                                    subtitle: Text(
-                                      '${(attachment.fileSize / 1024).toStringAsFixed(2)} KB',
-                                      style: TextStyle(fontSize: 14.sp),
-                                    ),
-
-                                    onTap: () async {
-                                      DateTime now = DateTime.now();
-                                      String formattedDate = DateFormat('yyyy-MM-dd').format(now);
-
-                                      String? projectUrl = await _getProjectUrl();
-                                      if (projectUrl != null) {
-                                        try {
-                                          String downloadUrl = '$projectUrl/uploads/daily_notes/$formattedDate/$notesId/${attachment.imageName}';
-                                          await downloadImage(downloadUrl, attachment.imageName);
-                                          // ScaffoldMessenger.of(context).showSnackBar(
-                                          //   SnackBar(
-                                          //     content: Text('File downloaded successfully.'),
-                                          //   ),
-                                          // );
-                                        } catch (e) {
+                                  ...imageList.map((attachment) {
+                                    bool isFileNotUploaded = (attachment.fileSize / 1024) == 0.00;
+                                    return ListTile(
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 0.0), // Adjust padding
+                                      leading: Icon(Icons.file_download),
+            
+                                      title: isFileNotUploaded
+                                          ? Text(
+                                        'File is not uploaded properly',
+                                        style: TextStyle(fontSize: 14.sp, color: Colors.red),
+                                      )
+                                          : Text(
+                                        attachment.imageName,
+                                        style: TextStyle(fontSize: 14.sp),
+                                      ),
+                                      subtitle: Text(
+                                        '${(attachment.fileSize / 1024).toStringAsFixed(2)} KB',
+                                        style: TextStyle(fontSize: 14.sp),
+                                      ),
+            
+                                      onTap: () async {
+                                        DateTime now = DateTime.now();
+                                        String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+            
+                                        String? projectUrl = await _getProjectUrl();
+                                        if (projectUrl != null) {
+                                          try {
+                                            String downloadUrl = '$projectUrl/uploads/daily_notes/$formattedDate/$notesId/${attachment.imageName}';
+                                            downloadFile(downloadUrl, context,attachment.imageName);
+                                            // ScaffoldMessenger.of(context).showSnackBar(
+                                            //   SnackBar(
+                                            //     content: Text('File downloaded successfully.'),
+                                            //   ),
+                                            // );
+                                          } catch (e) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('Failed to download file: $e'),
+                                              ),
+                                            );
+                                          }
+                                        } else {
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
-                                              content: Text('Failed to download file: $e'),
+                                              content: Text('Failed to retrieve project URL.'),
                                             ),
                                           );
                                         }
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('Failed to retrieve project URL.'),
-                                          ),
-                                        );
-                                      }
-                                    },
-                                  );
-                                }).toList(),
-                              ],
-                            )
-                        ],
+                                      },
+                                    );
+                                  }).toList(),
+                                ],
+                              )
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -302,5 +306,18 @@ class TeacherDetailCard extends StatelessWidget {
     } else {
       return false;
     }
+  }
+  void downloadFile(String url, BuildContext context,String name) async {
+    var path = "/storage/emulated/0/Download/Evolvuschool/Parent/TeacherNote/$name";
+    var file = File(path);
+    var res = await get(Uri.parse(url));
+    file.writeAsBytes(res.bodyBytes);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Download/Evolvuschool/Parent/TeacherNote/$name File downloaded successfully. '),
+      ),
+    );
+
   }
 }

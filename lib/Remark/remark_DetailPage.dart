@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:evolvu/common/common_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -169,8 +171,7 @@ class _RemarkDetailPageState extends State<RemarkDetailPage> {
                         try {
                           String downloadUrl =
                               projectUrl+'uploads/remark/${widget.remarkInfo.remarkDate}/${widget.remarkInfo.remarkId}/${attachment.imageName}';
-                          await downloadImage(
-                              downloadUrl, attachment.imageName);
+                          downloadFile(downloadUrl, context,attachment.imageName);
                           print('Failed downloadUrl $downloadUrl');
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -260,5 +261,18 @@ class _RemarkDetailPageState extends State<RemarkDetailPage> {
         ],
       ),
     );
+  }
+  void downloadFile(String url, BuildContext context,String name) async {
+    var path = "/storage/emulated/0/Download/Evolvuschool/Parent/Remark/$name";
+    var file = File(path);
+    var res = await get(Uri.parse(url));
+    file.writeAsBytes(res.bodyBytes);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Download/Evolvuschool/Parent/Remark/$name File downloaded successfully. '),
+      ),
+    );
+
   }
 }

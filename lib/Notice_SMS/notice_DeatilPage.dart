@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:evolvu/common/common_style.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:evolvu/common/common_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -140,7 +142,7 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
                           try {
                             String downloadUrl = projectUrl + 'uploads/notice/${widget.noticeInfo.date}/${widget.noticeInfo.noticeId}'
                                 '/${attachment.imageName}';
-                            await downloadImage(downloadUrl, attachment.imageName);
+                            downloadFile(downloadUrl, context,attachment.imageName);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('File downloaded successfully.'),
@@ -193,5 +195,18 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
         ),
       ],
     );
+  }
+  void downloadFile(String url, BuildContext context,String name) async {
+    var path = "/storage/emulated/0/Download/Evolvuschool/Parent/Notice/$name";
+    var file = File(path);
+    var res = await get(Uri.parse(url));
+    file.writeAsBytes(res.bodyBytes);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Download/Evolvuschool/Parent/Notice/$name File downloaded successfully. '),
+      ),
+    );
+
   }
 }

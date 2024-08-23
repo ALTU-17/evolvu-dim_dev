@@ -6,15 +6,20 @@ import 'package:evolvu/Homework/homeWork_noteCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-import '../const/const_teacherNoteCard.dart';
-
 class HomeWorkNotePage extends StatefulWidget {
   final String studentId;
   final String academic_yr;
   final String shortName;
   final String classId;
   final String secId;
-  HomeWorkNotePage({required this.studentId,required this.academic_yr,required this.shortName, required this.classId, required this.secId});
+
+  HomeWorkNotePage({
+    required this.studentId,
+    required this.academic_yr,
+    required this.shortName,
+    required this.classId,
+    required this.secId,
+  });
 
   @override
   _HomeWorkNotePage createState() => _HomeWorkNotePage();
@@ -44,10 +49,10 @@ class _HomeWorkNotePage extends State<HomeWorkNotePage> {
         academic_yr = logUrlsparsed['academic_yr'];
         reg_id = logUrlsparsed['reg_id'];
       } catch (e) {
-        print('Error parsing school info: $e');
+        print('Error parsing logUrls: $e');
       }
     } else {
-      print('School info not found in SharedPreferences.');
+      print('LogUrls not found in SharedPreferences.');
     }
 
     if (schoolInfoJson != null) {
@@ -56,7 +61,7 @@ class _HomeWorkNotePage extends State<HomeWorkNotePage> {
         shortName = parsedData['short_name'];
         url = parsedData['url'];
       } catch (e) {
-        print('Error parsing school info: $e');
+        print('Error parsing schoolInfoJson: $e');
       }
     } else {
       print('School info not found in SharedPreferences.');
@@ -74,7 +79,6 @@ class _HomeWorkNotePage extends State<HomeWorkNotePage> {
       },
     );
 
-    print('Error parsing school info: response'+response.body);
     if (response.statusCode == 200) {
       if (response.body.isEmpty) {
         throw Exception('No homework assigned');
@@ -89,6 +93,12 @@ class _HomeWorkNotePage extends State<HomeWorkNotePage> {
     } else {
       throw Exception('Failed to load homework: ${response.statusCode}');
     }
+  }
+
+  Future<void> refreshHomeworkNotes() async {
+    setState(() {
+      futureNotes = fetchHomework(); // Refresh the homework notes
+    });
   }
 
   @override
@@ -149,15 +159,13 @@ class _HomeWorkNotePage extends State<HomeWorkNotePage> {
                             assignedDate: note.startDate,
                             submissionDate: truncateEndDate(note.endDate),
                             status: note.homeworkStatus,
-
-                            onTap: () {
-                              // updateReadStatus(note.notesId);
-                              Navigator.push(
+                            onTap: () async {
+                              await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => HomeWorkDetailCard(
-                                    shortName:shortName,
-                                    academic_yr:academic_yr,
+                                    shortName: shortName,
+                                    academic_yr: academic_yr,
                                     subject: note.subjectName,
                                     assignedDate: note.startDate,
                                     submissionDate: truncateEndDate(note.endDate),
@@ -174,6 +182,7 @@ class _HomeWorkNotePage extends State<HomeWorkNotePage> {
                                   ),
                                 ),
                               );
+                              refreshHomeworkNotes(); // Refresh notes after returning from the detail page
                             },
                           ),
                         );
@@ -187,8 +196,8 @@ class _HomeWorkNotePage extends State<HomeWorkNotePage> {
         ),
       ),
     );
-
   }
+
   String truncateEndDate(String endDate) {
     List<String> parts = endDate.split(' ');
     if (parts.length > 1) {
