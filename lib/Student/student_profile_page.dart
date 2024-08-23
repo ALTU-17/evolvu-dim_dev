@@ -1,3 +1,4 @@
+import 'package:evolvu/Parent/parentDashBoard_Page.dart';
 import 'package:evolvu/common/Common_dropDownFiled.dart';
 import 'package:evolvu/common/common_textFiled.dart';
 import 'package:evolvu/Student/stu_form.dart';
@@ -11,8 +12,10 @@ class StudentProfilePage extends StatelessWidget {
   final String studentId;
   final String academic_yr;
   final String shortName;
+  final String cname;
+  final String secname;
   StudentProfilePage({
-  required this.studentId,required this.academic_yr,required this.shortName,
+  required this.studentId,required this.academic_yr,required this.shortName,required this.cname,required this.secname,
   });
   @override
   Widget build(BuildContext context) {
@@ -68,7 +71,7 @@ class StudentProfilePage extends StatelessWidget {
                 height: 720.h,
                 child:  Padding(
                   padding: EdgeInsets.all(4.0),
-                  child: StudentForm(studentId),
+                  child: StudentForm(studentId,cname,secname,shortName),
                 ),
               ),
             ],

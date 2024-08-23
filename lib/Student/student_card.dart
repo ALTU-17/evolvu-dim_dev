@@ -11,7 +11,7 @@ import 'StudentDashboard.dart';
 
 class StudentCard extends StatefulWidget {
   final Function(int index) onTap;
-  const StudentCard({super.key, required this.onTap});
+   StudentCard({super.key, required this.onTap});
   @override
   _StudentCardState createState() => _StudentCardState();
 }
@@ -113,6 +113,8 @@ class _StudentCardState extends State<StudentCard> {
                 firstName: students[index]['first_name'] ?? '',
                 rollNo: students[index]['roll_no'] ?? '',
                 className: (students[index]['class_name'] ?? '') + (students[index]['section_name'] ?? ''),
+                cname : (students[index]['class_name'] ?? ''),
+                secname : (students[index]['section_name'] ?? ''),
                 classTeacher: students[index]['class_teacher'] ?? '',
                 gender: students[index]['gender'] ?? '',
                 studentId: students[index]['student_id'] ?? '',
@@ -135,6 +137,8 @@ class StudentCardItem extends StatefulWidget {
   final String firstName;
   final String rollNo;
   final String className;
+  final String cname;
+  final String secname;
   final String classTeacher;
   final String gender;
   final String studentId;
@@ -145,10 +149,12 @@ class StudentCardItem extends StatefulWidget {
   final String secId;
   final Function(int index) onTap;
 
-  const StudentCardItem({
+   StudentCardItem({
     required this.firstName,
     required this.rollNo,
     required this.className,
+    required this.cname,
+    required this.secname,
     required this.classTeacher,
     required this.gender,
     required this.studentId,
@@ -246,6 +252,8 @@ class _StudentCardItemState extends State<StudentCardItem> {
               firstName: widget.firstName,
               rollNo: widget.rollNo,
               className: widget.className,
+              cname: widget.cname,
+              secname: widget.secname,
               classTeacher: widget.classTeacher,
               gender: widget.gender,
               classId: widget.classId,

@@ -15,6 +15,8 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../common/Mylable.dart';
+
 class StuInfoModal {
   String? studentId;
   String? academicYr;
@@ -294,8 +296,11 @@ class StuInfoModal {
 
 class StudentForm extends StatefulWidget {
   final String studentId;
+  final String cname;
+  final String secname;
+  final String shortName1;
 
-  const StudentForm(this.studentId, {super.key});
+  StudentForm( this.studentId, this.cname,this.shortName1, this.secname);
 
   @override
   _StudentFormState createState() => _StudentFormState();
@@ -331,24 +336,39 @@ class _StudentFormState extends State<StudentForm> {
     'F': 'Female',
   };
   Map<String, String> TransMapping = {
+    '': 'select',
+    'Bus': 'Bus',
+    'Van': 'Van',
     'Self': 'Self',
-    'School Bus': 'School Bus',
-    'Private Van': 'Private Van',
   };
-  Map<String, String> houseMapping = {
+
+
+  final List<String> displayOptions = [
+    'Select',
+    'School Bus',
+    'Private Van',
+    'Self'
+  ];
+
+  // Values sent to the server
+  final Map<String, String> valueMapping = {
+    'Select': '',
+    'School Bus': 'Bus',
+    'Private Van': 'Van',
+    'Self': 'Self'
+  };
+  String? selectedHouseName='';
+  String? selectedTrans='';
+
+  String? selectedHouseId; // Store short name
+  List<Map<String, String>> houses = [];
+
+  Map<String, String> houseNameMapping = {
     'D': 'Diamond',
     'E': 'Emerald',
     'R': 'Ruby',
-    'S': 'Sapphire'
+    'S': 'Sapphire',
   };
-
-// Method to get the full house name from the abbreviation
-  String getFullHouseName(String? abbreviation) {
-    if (abbreviation == null || abbreviation.isEmpty) {
-      return '';
-    }
-    return houseMapping[abbreviation] ?? abbreviation;
-  }
 
   String getGender(String? abbreviation) {
     if (abbreviation == null || abbreviation.isEmpty) {
@@ -359,7 +379,7 @@ class _StudentFormState extends State<StudentForm> {
 
   String getTrans(String? abbreviation) {
     if (abbreviation == null || abbreviation.isEmpty) {
-      return '';
+      return TransMapping['']!; // Return "Select" if empty or null
     }
     return TransMapping[abbreviation] ?? abbreviation;
   }
@@ -541,9 +561,77 @@ class _StudentFormState extends State<StudentForm> {
     // _getSchoolInfo(widget.studentId);
   }
 
+  Future<void> fetchHouseData() async {
+    try {
+      print('get_house body:${widget.shortName1}');
+
+      http.Response response = await http.post(
+        Uri.parse("$url+get_house"),
+        body: {'short_name': shortName},
+      );
+      print('get_house body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          houses = data.map((house) {
+            return {
+              'house_id': house['house_id'] as String,
+              'house_name': house['house_name'] as String,
+            };
+          }).toList();
+
+          // Set the initial selected house to the first house in the list, or you can choose another default
+
+          // selectedHouseName = houses.first['house_name'];
+          selectedHouseId = houses.first['house_id'];
+          print('Failed to load house data ${childInfo?.house}');
+
+          if(childInfo?.house == 'E'){
+            selectedHouseName = 'Emerald';
+            print('Failed to load house data $selectedHouseName');
+          } else if (childInfo?.house == 'D') {
+
+            selectedHouseName = 'Diamond';
+
+          } else if (childInfo?.house == 'S') {
+
+            selectedHouseName = 'Sapphire';
+
+          } else if (childInfo?.house == 'R') {
+
+            selectedHouseName = 'Ruby';
+          }
+
+          if(childInfo?.transportMode == 'Bus'){
+            selectedTrans = 'School Bus';
+            print('Failed to load house data $selectedTrans');
+          } else if (childInfo?.transportMode == 'Van') {
+
+            selectedTrans = 'Private Van';
+
+          } else if (childInfo?.house == 'Self') {
+
+            selectedTrans = 'Self';
+
+          }
+
+        });
+      } else {
+        print('Failed to load house data');
+      }
+    } catch (e) {
+      print('Exception: $e');
+    }
+  }
+
+
   _init() async {
     childInfo = await _getSchoolInfo(widget.studentId);
-    setState(() {});
+    setState(() {
+      fetchHouseData();
+
+    });
   }
 
   @override
@@ -579,18 +667,19 @@ class _StudentFormState extends State<StudentForm> {
                                   child: ClipRRect(
                                     child: imageUrl.isNotEmpty
                                         ? Image.network(
-                                            imageUrl,
-                                            // Append a timestamp as a query parameter to force reload
-                                            fit: BoxFit.contain,
-                                          )
+                                      imageUrl + '?timestamp=${DateTime.now().millisecondsSinceEpoch}',
+                                      fit: BoxFit.contain,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Image.asset(
+                                          childInfo?.gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
+                                          fit: BoxFit.contain,
+                                        );
+                                      },
+                                    )
                                         : Image.asset(
-                                            childInfo?.gender == 'F'
-                                                ? 'assets/girl.png'
-                                                : 'assets/boy.png',
-                                            // Replace with your actual image paths
-
-                                            fit: BoxFit.contain,
-                                          ),
+                                      childInfo?.gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
+                                      fit: BoxFit.contain,
+                                    ),
                                   ),
                                 ),
                                 Positioned(
@@ -686,18 +775,17 @@ class _StudentFormState extends State<StudentForm> {
                             },
                           ),
 
-                          LabeledDropdown(
-                            label:
-                                'House :  ${getFullHouseName(childInfo!.house)}',
 
-                            options: ['Diamond', 'Emerald', 'Ruby', 'Sapphire'],
+                          LabeledDropdown(
+                            label: 'House :  $selectedHouseName',
+
+                            options: houseNameMapping.values.toList(),
                             // initialValue: childInfo?.house,  // This should be the abbreviation, e.g., 'D'
 
                             onChanged: (String? newValue) {
                               setState(() {
-                                if (newValue != null) {
-                                  childInfo?.house = newValue;
-                                }
+                                selectedHouseName = newValue;
+                                selectedHouseId = houses.firstWhere((house) => house['house_name'] == newValue)['house_id'];
                               });
                             },
                           ),
@@ -713,13 +801,13 @@ class _StudentFormState extends State<StudentForm> {
                           ),
 
                           CustomTextField(
-                            initialValue: childInfo?.className,
+                            initialValue: widget?.cname,
                             label: 'Class ',
                             name: 'Class ',
                             readOnly: true,
                           ),
                           CustomTextField(
-                            initialValue: childInfo?.sectionName,
+                            initialValue: widget?.secname,
                             readOnly: true,
                             label: 'Division ',
                             name: 'Division ',
@@ -742,18 +830,31 @@ class _StudentFormState extends State<StudentForm> {
                             },
                           ),
 
-                          TextFormField(
-                            initialValue: childInfo?.bloodGroup,
-                            decoration: InputDecoration(
-                              border: UnderlineInputBorder(),
-                              labelText: 'Blood Group',
-                            ),
-                            onChanged: (value) {
+                          LabeledDropdown(
+                            label:
+                            "Blood Group : ${getTrans(childInfo?.bloodGroup)}",
+                            options: ["Select Blood Group", "AB+", "AB-", "B+", "B-", "A+", "A-", "O+", "O-"],
+                            onChanged: (String? newValue) {
                               setState(() {
-                                childInfo?.bloodGroup = value;
+                                if (newValue != null) {
+                                  childInfo?.bloodGroup = newValue;
+                                }
                               });
                             },
                           ),
+
+                          // TextFormField(
+                          //   initialValue: childInfo?.bloodGroup,
+                          //   decoration: InputDecoration(
+                          //     border: UnderlineInputBorder(),
+                          //     labelText: 'Blood Group',
+                          //   ),
+                          //   onChanged: (value) {
+                          //     setState(() {
+                          //       childInfo?.bloodGroup = value;
+                          //     });
+                          //   },
+                          // ),
                           TextFormField(
                             initialValue: childInfo?.nationality,
                             decoration: InputDecoration(
@@ -920,13 +1021,14 @@ class _StudentFormState extends State<StudentForm> {
 
                           //////////////
                           LabeledDropdown(
-                            label:
-                                "Transport Mode :  ${getTrans(childInfo!.transportMode)}",
-                            options: ['School Bus', 'Private Van', 'Self'],
+                            label: "Transport Mode :  $selectedTrans",
+                            options: displayOptions,
                             onChanged: (String? newValue) {
                               setState(() {
                                 if (newValue != null) {
-                                  childInfo?.transportMode = newValue;
+                                  // Update the transportMode with the server-side value
+                                  selectedTrans = newValue;
+                                  childInfo?.transportMode = valueMapping[newValue]!;
                                 }
                               });
                             },
@@ -996,6 +1098,8 @@ class _StudentFormState extends State<StudentForm> {
                                   body: {
                                     'short_name': shortName ?? '',
                                     'student_id': childInfo?.studentId ?? '',
+                                    'gender': childInfo?.gender ?? '',
+                                    'blood_group': childInfo?.bloodGroup ?? '',
                                     'stu_aadhaar_no':
                                         childInfo?.stuAadhaarNo ?? '',
                                     'nationality': childInfo?.nationality ?? '',
@@ -1023,13 +1127,16 @@ class _StudentFormState extends State<StudentForm> {
                                     'admission_class':
                                         childInfo?.admissionClass ?? '',
                                     'allergies': childInfo?.allergies ?? '',
+                                    'height': childInfo?.height ?? '',
+                                    'weight': childInfo?.weight ?? '',
+                                    'house': selectedHouseId ?? '',
+                                    'transport_mode': childInfo?.transportMode ?? '',
                                   },
                                 );
 
                                 // print('Response body: $qrCode $academic_yr $formattedTime $formattedDate');
                                 print('Response body: ${response.body}');
-                                print(
-                                    'childInfo?.stuAadhaarNo33##### body: ${childInfo?.stuAadhaarNo}');
+                                print('childInfo?.stuAadhaarNo33##### body: ${childInfo?.allergies}+${childInfo?.gender}+${childInfo?.transportMode}');
 
                                 if (response.statusCode == 200) {
                                   Fluttertoast.showToast(
@@ -1041,6 +1148,8 @@ class _StudentFormState extends State<StudentForm> {
                                     textColor: Colors.white,
                                     fontSize: 16.0,
                                   );
+
+                                  Navigator.pop(context);
                                 } else {
                                   Fluttertoast.showToast(
                                     msg: "Failed to update Profile",

@@ -15,6 +15,7 @@ import 'dart:math' as math;
 import '../ExamTimeTable/examTimeTable.dart';
 import '../ExamTimeTable/timeTable.dart';
 import '../Notice_SMS/notice_notePage.dart';
+import '../SmartChat_WebView.dart';
 import '../common/rotatedDivider_Card.dart';
 
 class CardItem {
@@ -22,12 +23,14 @@ class CardItem {
   final String imagePath;
   final String title;
   final Function(BuildContext context) onTap;
+  final int? badgeCount; // Optional badge count
 
   CardItem({
     this.imageUrl,
     required this.imagePath,
     required this.title,
     required this.onTap,
+    this.badgeCount,
   });
 }
 
@@ -36,6 +39,8 @@ class StudentActivityPage extends StatelessWidget {
   final String firstName;
   final String rollNo;
   final String className;
+  final String cname;
+  final String secname;
   final String classTeacher;
   final String gender;
   final String classId;
@@ -46,6 +51,8 @@ class StudentActivityPage extends StatelessWidget {
     required this.firstName,
     required this.rollNo,
     required this.className,
+    required this.cname,
+    required this.secname,
     required this.classTeacher,
     required this.gender,
     required this.classId,
@@ -137,6 +144,34 @@ class StudentActivityPage extends StatelessWidget {
   }
   }
 
+  Future<int> fetchUnreadHomeworkCount() async {
+    int unreadCount = 0;
+
+    try {
+      final response = await http.post(
+        Uri.parse(url + "get_count_of_unread_homeworks"),
+        body: {
+          'student_id': studentId,
+          'parent_id': reg_id,
+          'acd_yr': academic_yr,
+          'short_name': shortName
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        unreadCount = int.tryParse(data[0]['unread_homeworks']) ?? 0;
+      } else {
+        print('Failed to fetch unread remarks count: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching unread remarks count: $e');
+    }
+
+    return unreadCount;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final List<CardItem> cardItems = [
@@ -147,7 +182,7 @@ class StudentActivityPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StudentProfilePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
+              builder: (context) => StudentProfilePage(studentId: studentId,shortName: shortName,cname: cname,secname: secname,academic_yr: academic_yr
                 ,),
             ),
           );
@@ -205,6 +240,7 @@ class StudentActivityPage extends StatelessWidget {
           );
           },
       ),
+
       CardItem(
         imagePath: 'assets/calendar.png',
         title: 'Exam/TimeTable',
@@ -280,6 +316,20 @@ class StudentActivityPage extends StatelessWidget {
         },
 
       ),
+
+      CardItem(
+        imagePath: 'assets/smartchat.png',
+        title: 'Smart Chat',
+        onTap: (context) {
+          Navigator.push(
+              context,
+          MaterialPageRoute(
+            builder: (context) => WebViewPage(studentId: studentId,shortName: shortName,academicYr: academic_yr
+                ,classId: classId,secId:secId),
+          ),
+          );
+        },
+      ),
       // CardItem(
       //   imagePath: 'assets/new_module.png', // Path to the new module image
       //   title: 'New Module',
@@ -331,16 +381,21 @@ class StudentActivityPage extends StatelessWidget {
                             child: Row(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 5.0),
+                                  padding: EdgeInsets.only(left: 5.0),
                                   child: SizedBox.square(
                                     dimension: 60.w,
                                     child: imageUrl.isNotEmpty
                                         ? Image.network(
                                       imageUrl + '?timestamp=${DateTime.now().millisecondsSinceEpoch}',
                                       height: 60,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Image.asset(
+                                          gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
+                                        );
+                                      },
                                     )
                                         : Image.asset(
-                                      gender == 'F' ? 'assets/girl.png' : 'assets/boy.png', // Local fallback image
+                                      gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
                                     ),
                                   ),
                                 ),

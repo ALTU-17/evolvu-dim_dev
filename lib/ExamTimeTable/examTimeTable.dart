@@ -45,7 +45,9 @@ class _ExamTimeTablePageState extends State<ExamTimeTablePage> {
       },
     );
 
-    if (response.statusCode == 200) {
+    if (!response.body.isEmpty) {
+      print('display_exam_timetable Response body: ${response.body}');
+      print('display_exam_timetable Response body: ${response.statusCode}');
       List<dynamic> jsonResponse = json.decode(response.body);
       return jsonResponse.map((data) => Period.fromJson(data)).toList();
     } else {
@@ -89,9 +91,12 @@ class _ExamTimeTablePageState extends State<ExamTimeTablePage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      return Center(child: Text("Error: ${snapshot.error}"));
+                      return Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Center(child: Text("Exam Timetable is not available!",style: TextStyle(backgroundColor: Colors.white,fontSize: 18),)),
+                      );
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(child: Text("No data available"));
+                      return Center(child: Text("Exam Timetable is not available"));
                     } else {
                       // Get the exam name from the first Period object
                       String examName = snapshot.data!.first.name;

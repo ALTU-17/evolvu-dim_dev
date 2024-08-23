@@ -1,12 +1,20 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:evolvu/Homework/homeWork_notePage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../Utils&Config/DownloadHelper.dart';
 import '../Teacher/Attachment.dart';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 
 class HomeworkInfo {
   final String className;
@@ -61,7 +69,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
   @override
   void initState() {
     super.initState();
-    _parentCommentController = TextEditingController(text: widget.homeworkInfo.parentComment);
+    _parentCommentController =
+        TextEditingController(text: widget.homeworkInfo.parentComment);
     _teacherCommentController = TextEditingController();
     _getProjectUrl();
   }
@@ -90,7 +99,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     if (schoolInfoJson != null) {
       try {
         Map<String, dynamic> parsedData = json.decode(schoolInfoJson);
-         projectUrl = parsedData['project_url'];
+        projectUrl = parsedData['project_url'];
         shortName = parsedData['short_name'];
         url = parsedData['url'];
         return url;
@@ -132,18 +141,14 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
       if (response.statusCode == 200) {
         print('Homework updated successfully.');
 
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => HomeWorkNotePage()),
-        // );
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Homework updated successfully.'),
           ),
         );
-      } else {
 
+        Navigator.pop(context);
+      } else {
         print('Failed to update homework. Status code: ${response.statusCode}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -180,174 +185,172 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Class:                            ${widget.homeworkInfo.className}',
-            style: TextStyle(
-              fontSize: 16.sp,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Subject:                        ${widget.homeworkInfo.subject}',
-            style: TextStyle(
-              fontSize: 16.sp,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Assigned Date:             ${widget.homeworkInfo.assignedDate}',
-            style: TextStyle(
-              fontSize: 16.sp,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Submission Date:         ${widget.homeworkInfo.submissionDate}',
-            style: TextStyle(
-              fontSize: 16.sp,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Homework:                  ${widget.homeworkInfo.homework}',
-            style: TextStyle(
-              fontSize: 16.sp,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            'Homework Status:       ${widget.homeworkInfo.homeworkStatus}',
-            style: TextStyle(
-              fontSize: 16.sp,
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            ' Teacher \n Comment:    ${widget.homeworkInfo.teachersComment}',
-            style: TextStyle(
-              fontSize: 16.sp,
-            ),
-          ),
-          SizedBox(height: 10.h),
-          Text(
-            'Parent\'s Comment:',
-            style: TextStyle(fontSize: 16.sp),
-          ),
-          SizedBox(height: 5.h),
-          Container(
-            height: 120.h,
-            width: double.infinity,
-            padding: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 240, 238, 238),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: TextField(
-              controller: _parentCommentController,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Type here...',
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Class:                            ${widget.homeworkInfo.className}',
+              style: TextStyle(
+                fontSize: 16.sp,
               ),
-              maxLines: null,
-              onChanged: (text) {
-                // Update the state to ensure the text is retained
-                setState(() {});
-              },
             ),
-          ),
-          if (widget.homeworkInfo.attachments.isNotEmpty)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 8.h),
-                Text(
-                  'Attachments:',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
+            SizedBox(height: 8.h),
+            Text(
+              'Subject:                        ${widget.homeworkInfo.subject}',
+              style: TextStyle(
+                fontSize: 16.sp,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Assigned Date:             ${widget.homeworkInfo.assignedDate}',
+              style: TextStyle(
+                fontSize: 16.sp,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Submission Date:         ${widget.homeworkInfo.submissionDate}',
+              style: TextStyle(
+                fontSize: 16.sp,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Homework:                  ${widget.homeworkInfo.homework}',
+              style: TextStyle(
+                fontSize: 16.sp,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'Homework Status:       ${widget.homeworkInfo.homeworkStatus}',
+              style: TextStyle(
+                fontSize: 16.sp,
+              ),
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              ' Teacher \n Comment:    ${widget.homeworkInfo.teachersComment}',
+              style: TextStyle(
+                fontSize: 16.sp,
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              'Parent\'s Comment:',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 5.h),
+            Container(
+              height: 120.h,
+              width: double.infinity,
+              padding: const EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 240, 238, 238),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: TextField(
+                controller: _parentCommentController,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Type here...',
                 ),
-                ...widget.homeworkInfo.attachments.map((attachment) {
-                  bool isFileNotUploaded = (attachment.fileSize / 1024) == 0.00;
-                  return ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
-                    // Adjust padding
-                    leading: Icon(Icons.file_download, size: 25),
-
-                    title: isFileNotUploaded
-                        ? Text(
-                      'File is not uploaded properly',
-                      style:
-                      TextStyle(fontSize: 14.sp, color: Colors.red),
-                    )
-                        : Text(
-                      attachment.imageName,
-                      style: TextStyle(fontSize: 14.sp),
+                maxLines: null,
+                onChanged: (text) {
+                  // Update the state to ensure the text is retained
+                  setState(() {});
+                },
+              ),
+            ),
+            if (widget.homeworkInfo.attachments.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Attachments:',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
                     ),
-                    subtitle: Text(
-                      '${(attachment.fileSize / 1024).toStringAsFixed(2)} KB',
-                      style: TextStyle(fontSize: 14.sp),
-                    ),
+                  ),
+                  ...widget.homeworkInfo.attachments.map((attachment) {
+                    bool isFileNotUploaded =
+                        (attachment.fileSize / 1024) == 0.00;
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 0.0),
+                      // Adjust padding
+                      leading: Icon(Icons.file_download, size: 25),
 
-                    onTap: () async {
-                      DateTime now = DateTime.now();
-                      String formattedDate =
-                      DateFormat('yyyy-MM-dd').format(now);
-
-                      // String? projectUrl = await _getProjectUrl();
-                      if (projectUrl != null) {
-                        try {
-                          String downloadUrl =
-                              projectUrl+'uploads/homework/${widget.homeworkInfo.publishDate}/${widget.homeworkInfo.homeworkId}/${attachment.imageName}';
-                          await downloadImage(
-                              downloadUrl, attachment.imageName);
-                          print('Failed downloadUrl $downloadUrl');
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('File downloaded successfully.'),
+                      title: isFileNotUploaded
+                          ? Text(
+                              'File is not uploaded properly',
+                              style:
+                                  TextStyle(fontSize: 14.sp, color: Colors.red),
+                            )
+                          : Text(
+                              attachment.imageName,
+                              style: TextStyle(fontSize: 14.sp),
                             ),
-                          );
-                        } catch (e) {
+                      subtitle: Text(
+                        '${(attachment.fileSize / 1024).toStringAsFixed(2)} KB',
+                        style: TextStyle(fontSize: 14.sp),
+                      ),
+
+                      onTap: () async {
+                        DateTime now = DateTime.now();
+                        String formattedDate =
+                            DateFormat('yyyy-MM-dd').format(now);
+
+                        // String? projectUrl = await _getProjectUrl();
+                        if (projectUrl != null) {
+                          try {
+                            String downloadUrl = projectUrl +
+                                'uploads/homework/${widget.homeworkInfo.publishDate}/${widget.homeworkInfo.homeworkId}/${attachment.imageName}';
+                             downloadFile(downloadUrl, context,attachment.imageName);
+                            print('Failed downloadUrl $downloadUrl');
+
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to download file: $e'),
+                              ),
+                            );
+                          }
+                        } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Failed to download file: $e'),
+                              content: Text('Failed to retrieve project URL.'),
                             ),
                           );
                         }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Failed to retrieve project URL.'),
-                          ),
-                        );
-                      }
-                    },
-                  );
-                }).toList(),
-                SizedBox(height: 20.h),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _updateHomework();
-                      // Navigator.of(context).pushNamed('/parentDashBoardPage');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 37, vertical: 6),
-                    ),
-                    child: Text(
-                      'Update',
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp),
-                    ),
-                  ),
+                      },
+                    );
+                  }).toList(),
+                ],
+              ),
+            SizedBox(height: 20.h),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  _updateHomework();
+                  // Navigator.of(context).pushNamed('/parentDashBoardPage');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 37, vertical: 6),
                 ),
-              ],
-            )
-        ],
+                child: Text(
+                  'Update',
+                  style: TextStyle(color: Colors.white, fontSize: 16.sp),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -358,4 +361,19 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     _teacherCommentController.dispose();
     super.dispose();
   }
+  void downloadFile(String url, BuildContext context,String name) async {
+    var path = "/storage/emulated/0/Download/Evolvuschool/Parent/Homework/$name";
+    var file = File(path);
+    var res = await get(Uri.parse(url));
+    file.writeAsBytes(res.bodyBytes);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Download/Evolvuschool/Parent/Homework/$name File downloaded successfully. '),
+      ),
+    );
+
+  }
 }
+
+

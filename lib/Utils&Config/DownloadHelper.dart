@@ -10,9 +10,11 @@ Future<void> downloadImage(String imageUrl, String imageName) async {
     var status = await Permission.storage.status;
     if (!status.isGranted) {
       status = await Permission.storage.request();
+
       if (!status.isGranted) {
         Fluttertoast.showToast(
-          msg: 'Storage permission is required to download images.',
+          msg:
+          'Storage permission is required to download images.',
           backgroundColor: Colors.black45,
           textColor: Colors.white,
           toastLength: Toast.LENGTH_LONG,
@@ -25,7 +27,9 @@ Future<void> downloadImage(String imageUrl, String imageName) async {
     var status = await Permission.photos.status;
     if (!status.isGranted) {
       status = await Permission.photos.request();
-      if (!status.isGranted) {
+
+      if (!status.isGranted)
+      {
         Fluttertoast.showToast(
           msg: 'Photos permission is required to download images.',
           backgroundColor: Colors.black45,
@@ -44,6 +48,7 @@ Future<void> downloadImage(String imageUrl, String imageName) async {
   String filePath = '$appDocPath/$imageName';
 
   try {
+    print('Downloading image from: $imageUrl');
     Dio dio = Dio();
     await dio.download(imageUrl, filePath);
 
@@ -55,13 +60,18 @@ Future<void> downloadImage(String imageUrl, String imageName) async {
       gravity: ToastGravity.CENTER,
     );
   } catch (e) {
-    print('Error downloading image: $e');
+    String errorMessage = 'Failed to download image';
+    if (e is DioError) {
+      // Handle specific DioError types here (e.g., network error, server error)
+      errorMessage = 'Download error: ${e.type}';
+    }
     Fluttertoast.showToast(
-      msg: 'Failed to download image',
+      msg: errorMessage,
       backgroundColor: Colors.black45,
       textColor: Colors.white,
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.CENTER,
     );
+    print('Error downloading image: $e');
   }
 }
