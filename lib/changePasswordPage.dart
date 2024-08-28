@@ -7,11 +7,15 @@ import 'dart:convert';
 
 import 'Parent/parentDashBoard_Page.dart';
 
-class TermsDialog extends StatelessWidget {
+class TermsDialog extends StatefulWidget {
   final String terms;
 
   TermsDialog({required this.terms});
 
+  @override
+  _TermsDialog createState() => _TermsDialog();
+}
+class _TermsDialog extends State<TermsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -35,7 +39,7 @@ class TermsDialog extends StatelessWidget {
             Flexible(
               child: SingleChildScrollView(
                 child: Text(
-                  terms,
+                  widget.terms,
                   style: TextStyle(fontSize: 14.sp, color: Colors.black),
                 ),
               ),

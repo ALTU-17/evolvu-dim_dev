@@ -241,10 +241,14 @@ Future<void> showLogoutConfirmationDialog(BuildContext context) async {
           style: TextStyle(fontSize: 22.sp),
         ),
         content: SingleChildScrollView(
-          child: ListBody(
-            children: <Widget>[
-              Text('Do you want to logout?'),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: ListBody(
+              children: <Widget>[
+                Text('Do you want to logout?',
+              style: TextStyle(fontSize: 16.sp,color: Colors.grey)),
+              ],
+            ),
           ),
         ),
         actions: <Widget>[

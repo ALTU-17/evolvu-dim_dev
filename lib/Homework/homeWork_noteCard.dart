@@ -94,6 +94,7 @@ class HomeWorkNoteCard extends StatelessWidget {
   final String assignedDate;
   final String submissionDate;
   final String status;
+  final String readStatus;
   final VoidCallback onTap;
 
   const HomeWorkNoteCard({
@@ -102,6 +103,7 @@ class HomeWorkNoteCard extends StatelessWidget {
     required this.assignedDate,
     required this.submissionDate,
     required this.status,
+    required this.readStatus,
     required this.onTap,
   }) : super(key: key);
 
@@ -111,10 +113,15 @@ class HomeWorkNoteCard extends StatelessWidget {
     DateTime parsedDate1 = DateTime.parse(submissionDate);
     String formatted_assignedDate = DateFormat('dd-MM-yyyy').format(parsedDate);
     String formatted_submissionDate = DateFormat('dd-MM-yyyy').format(parsedDate1);
+
+    Color cardColor = readStatus == '0'
+        ? Colors.grey
+        : Colors.white;
+
     return GestureDetector(
       onTap: onTap,
       child: Card(
-        color: Colors.white,
+        color: cardColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),

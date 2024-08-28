@@ -71,7 +71,7 @@ class StudentProfilePage extends StatelessWidget {
                 height: 720.h,
                 child:  Padding(
                   padding: EdgeInsets.all(4.0),
-                  child: StudentForm(studentId,cname,secname,shortName),
+                  child: StudentForm(studentId,cname,shortName,secname),
                 ),
               ),
             ],

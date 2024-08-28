@@ -23,19 +23,29 @@ class CardItem {
   final String imagePath;
   final String title;
   final Function(BuildContext context) onTap;
-  final int? badgeCount; // Optional badge count
+  final bool showBadge; // Optional badge count
+  final bool showBadgenotice; // Optional badge count
+  final bool showBadgeTnote; // Optional badge count
+  final bool showBadgeRemark; // Optional badge count
 
   CardItem({
     this.imageUrl,
     required this.imagePath,
     required this.title,
     required this.onTap,
-    this.badgeCount,
+    this.showBadge = false,
+    this.showBadgenotice = false,
+    this.showBadgeTnote = false,
+    this.showBadgeRemark = false,
   });
 }
 
-class StudentActivityPage extends StatelessWidget {
+class StudentActivityPage extends StatefulWidget {
+  final String reg_id;
+  final String shortName;
   final String studentId;
+  final String academicYr;
+  final String url;
   final String firstName;
   final String rollNo;
   final String className;
@@ -47,7 +57,11 @@ class StudentActivityPage extends StatelessWidget {
   final String secId;
 
   StudentActivityPage({
+    required this.reg_id,
+    required this.shortName,
     required this.studentId,
+    required this.academicYr,
+    required this.url,
     required this.firstName,
     required this.rollNo,
     required this.className,
@@ -59,11 +73,31 @@ class StudentActivityPage extends StatelessWidget {
     required this.secId,
   });
 
+  @override
+  _StudentActivityPageState createState() => _StudentActivityPageState();
+}
+
+class _StudentActivityPageState extends State<StudentActivityPage> {
+
+
   String shortName = "";
   String academic_yr = "";
   String reg_id = "";
   String url = "";
   String imageUrl = "";
+  int unreadCount = 0;
+  int noticeunreadCount = 0;
+  int TnoteunreadCount = 0;
+  int ReamrkunreadCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUnreadHomeworkCount();
+    fetchUnreadnotices();
+    fetchUnreadTechetNotes();
+    fetchUnreadRemark();
+  }
 
   Future<void> _getSchoolInfo() async {
     final prefs = await SharedPreferences.getInstance();
@@ -106,7 +140,7 @@ class StudentActivityPage extends StatelessWidget {
     http.Response response = await http.post(
       Uri.parse(url + "get_student"),
       body: {
-        'student_id': studentId,
+        'student_id': widget.studentId,
         'academic_yr': academic_yr,
         'short_name': shortName
       },
@@ -123,7 +157,7 @@ class StudentActivityPage extends StatelessWidget {
     http.Response get_student_profile_images_details = await http.post(
       Uri.parse(url + "get_student_profile_images_details"),
       body: {
-        'student_id': studentId,
+        'student_id': widget.studentId,
         'short_name': shortName
       },
     );
@@ -145,22 +179,24 @@ class StudentActivityPage extends StatelessWidget {
   }
 
   Future<int> fetchUnreadHomeworkCount() async {
-    int unreadCount = 0;
+    print('fetching unread remarks count: $reg_id');
 
     try {
       final response = await http.post(
-        Uri.parse(url + "get_count_of_unread_homeworks"),
+        Uri.parse(widget.url + "get_count_of_unread_homeworks"),
         body: {
-          'student_id': studentId,
-          'parent_id': reg_id,
-          'acd_yr': academic_yr,
-          'short_name': shortName
+          'student_id': widget.studentId,
+          'parent_id': widget.reg_id,
+          'acd_yr': widget.academicYr,
+          'short_name': widget.shortName
         },
       );
 
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         unreadCount = int.tryParse(data[0]['unread_homeworks']) ?? 0;
+        print('fetching unread remarks count: $unreadCount');
+
       } else {
         print('Failed to fetch unread remarks count: ${response.statusCode}');
       }
@@ -170,19 +206,104 @@ class StudentActivityPage extends StatelessWidget {
 
     return unreadCount;
   }
+  Future<int> fetchUnreadnotices() async {
+
+    try {
+      final response = await http.post(
+        Uri.parse(widget.url + "get_count_of_unread_notices"),
+        body: {
+          'student_id': widget.studentId,
+          'parent_id': widget.reg_id,
+          'acd_yr': widget.academicYr,
+          'short_name': widget.shortName
+        },
+      );
+
+      if (response.statusCode == 200) {
+
+        List<dynamic> data = json.decode(response.body);
+        noticeunreadCount = int.tryParse(data[0]['unread_notices']) ?? 0;
+        print('fetching unread noticeunreadCount count: $noticeunreadCount');
+
+      } else {
+        print('Failed to fetch unread noticeunreadCount count: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching unread noticeunreadCount count: $e');
+    }
+
+    return noticeunreadCount;
+  }
+  Future<int> fetchUnreadTechetNotes() async {
+
+    try {
+      final response = await http.post(
+        Uri.parse(widget.url + "get_count_of_unread_notes"),
+        body: {
+          'student_id': widget.studentId,
+          'parent_id': widget.reg_id,
+          'acd_yr': widget.academicYr,
+          'short_name': widget.shortName
+        },
+      );
+
+      if (response.statusCode == 200) {
+
+        List<dynamic> data = json.decode(response.body);
+        TnoteunreadCount = int.tryParse(data[0]['unread_notes']) ?? 0;
+        print('fetching unread TnoteunreadCount count: $TnoteunreadCount');
+
+      } else {
+        print('Failed to fetch unread TnoteunreadCount count: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching unread TnoteunreadCount count: $e');
+    }
+
+    return TnoteunreadCount;
+  }
+  Future<int> fetchUnreadRemark() async {
+
+    try {
+      final response = await http.post(
+        Uri.parse(widget.url + "get_count_of_unread_remarks"),
+        body: {
+          'student_id': widget.studentId,
+          'parent_id': widget.reg_id,
+          'acd_yr': widget.academicYr,
+          'short_name': widget.shortName
+        },
+      );
+
+      if (response.statusCode == 200) {
+
+        List<dynamic> data = json.decode(response.body);
+        ReamrkunreadCount = int.tryParse(data[0]['unread_remarks']) ?? 0;
+        print('fetching unread ReamrkunreadCount count: $ReamrkunreadCount');
+
+      } else {
+        print('Failed to fetch unread ReamrkunreadCount count: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching unread ReamrkunreadCount count: $e');
+    }
+
+    return ReamrkunreadCount;
+  }
 
 
   @override
   Widget build(BuildContext context) {
     final List<CardItem> cardItems = [
       CardItem(
-        imagePath: gender == 'F' ? 'assets/girl.png' : 'assets/boy.png', // Local fallback image
+        imagePath: widget.gender == 'F' ? 'assets/girl.png' : 'assets/boy.png', // Local fallback image
         title: 'Student Profile',
         onTap: (context) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => StudentProfilePage(studentId: studentId,shortName: shortName,cname: cname,secname: secname,academic_yr: academic_yr
+              builder: (context) => StudentProfilePage(studentId: widget.studentId,shortName: shortName,cname: widget.cname,
+                secname: widget.secname,academic_yr: academic_yr
                 ,),
             ),
           );
@@ -195,11 +316,12 @@ class StudentActivityPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TeacherNotePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
-                  ,classId: classId,secId:secId),
+              builder: (context) => TeacherNotePage(studentId: widget.studentId,shortName: shortName,academic_yr: academic_yr
+                  ,classId: widget.classId,secId:widget.secId),
             ),
           );
           },
+        showBadgeTnote: true,
       ),
       CardItem(
         imagePath: 'assets/books.png',
@@ -208,12 +330,14 @@ class StudentActivityPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => HomeWorkNotePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
-                  ,classId: classId,secId:secId),
+              builder: (context) => HomeWorkNotePage(studentId: widget.studentId,shortName: shortName,academic_yr: academic_yr
+                  ,classId: widget.classId,secId:widget.secId),
             ),
           );
           },
+        showBadge: true, // Show badge on this card
       ),
+
       CardItem(
         imagePath: 'assets/studying.png',
         title: 'Remark',
@@ -221,11 +345,12 @@ class StudentActivityPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => RemarkNotePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
-                  ,classId: classId,secId:secId),
+              builder: (context) => RemarkNotePage(studentId: widget.studentId,shortName: shortName,academic_yr: academic_yr
+                  ,classId: widget.classId,secId:widget.secId),
             ),
           );
           },
+        showBadgeRemark: true,
       ),
       CardItem(
         imagePath: 'assets/notice.png',
@@ -234,11 +359,12 @@ class StudentActivityPage extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => NoticeNotePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
-                  ,classId: classId,secId:secId),
+              builder: (context) => NoticeNotePage(studentId: widget.studentId,shortName: shortName,academic_yr: academic_yr
+                  ,classId: widget.classId,secId:widget.secId),
             ),
           );
           },
+        showBadgenotice: true,
       ),
 
       CardItem(
@@ -261,8 +387,8 @@ class StudentActivityPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TimeTablePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
-                                ,classId: classId,secId:secId,className:className),
+                            builder: (context) => TimeTablePage(studentId: widget.studentId,shortName: shortName,academic_yr: academic_yr
+                                ,classId: widget.classId,secId:widget.secId, className: widget.className),
                           ),
                         );
                       },
@@ -286,8 +412,8 @@ class StudentActivityPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ExamTimeTablePage(studentId: studentId,shortName: shortName,academic_yr: academic_yr
-                                  ,classId: classId,secId:secId,className:className),
+                              builder: (context) => ExamTimeTablePage(studentId: widget.studentId,shortName: shortName,academic_yr: academic_yr
+                                  ,classId: widget.classId,secId:widget.secId, className: widget.className,),
                             ),
                           );
                       },
@@ -324,8 +450,8 @@ class StudentActivityPage extends StatelessWidget {
           Navigator.push(
               context,
           MaterialPageRoute(
-            builder: (context) => WebViewPage(studentId: studentId,shortName: shortName,academicYr: academic_yr
-                ,classId: classId,secId:secId),
+            builder: (context) => WebViewPage(studentId: widget.studentId,shortName: shortName,academicYr: academic_yr
+                ,classId: widget.classId,secId:widget.secId),
           ),
           );
         },
@@ -390,12 +516,12 @@ class StudentActivityPage extends StatelessWidget {
                                       height: 60,
                                       errorBuilder: (context, error, stackTrace) {
                                         return Image.asset(
-                                          gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
+                                          widget.gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
                                         );
                                       },
                                     )
                                         : Image.asset(
-                                      gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
+                                      widget.gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
                                     ),
                                   ),
                                 ),
@@ -407,11 +533,11 @@ class StudentActivityPage extends StatelessWidget {
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          firstName,
+                                          widget.firstName,
                                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14.sp),
                                         ),
                                         Text(
-                                          "RollNo: $rollNo",
+                                          "RollNo: ${widget.rollNo}",
                                           style: TextStyle(fontSize: 10.sp, color: Colors.red),
                                         ),
                                       ],
@@ -438,7 +564,7 @@ class StudentActivityPage extends StatelessWidget {
                                         style: TextStyle(fontWeight: FontWeight.bold),
                                       ),
                                       Text(
-                                       className,
+                                        widget.className,
                                         style: TextStyle(fontSize: 10.sp, color: Colors.red),
                                       ),
                                     ],
@@ -457,7 +583,7 @@ class StudentActivityPage extends StatelessWidget {
                                           style: TextStyle(fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          classTeacher,
+                                          widget.classTeacher,
                                           style: TextStyle(fontSize: 10.sp, color: Colors.red),
                                         ),
                                       ],
@@ -488,26 +614,102 @@ class StudentActivityPage extends StatelessWidget {
                           final item = cardItems[index];
                           return Card(
                             color: Colors.white,
-                            child: InkWell(
-                              onTap: () => item.onTap(context),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    item.imagePath,
-                                    height: 60,
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    item.title,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12.sp,
+                              child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                              InkWell(
+                                onTap: () => item.onTap(context),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                      item.imagePath,
+                                      height: 60,
+                                    ),
+                                    SizedBox(height: 5),
+                                    Text(
+                                      item.title,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12.sp,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                                if (item.showBadge) // Conditionally show the badge
+                                if (unreadCount != 0) // Conditionally show the badge
+                                  Positioned(
+                                    top: 1,
+                                    right: 6,
+                                    child: CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.red,
+                                      child: Text(
+                                        '$unreadCount',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ],
+                                if (item.showBadgenotice)
+                                  if (noticeunreadCount != 0)// Conditionally show the badge
+                                  Positioned(
+                                    top: 1,
+                                    right: 6,
+                                    child: CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.red,
+                                      child: Text(
+                                        '$noticeunreadCount',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                if (item.showBadgeTnote)
+                                  if (TnoteunreadCount != 0)// Conditionally show the badge
+                                  Positioned(
+                                    top: 1,
+                                    right: 6,
+                                    child: CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.red,
+                                      child: Text(
+                                        '$TnoteunreadCount',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ), if (item.showBadgeRemark)
+                                  if (ReamrkunreadCount != 0)// Conditionally show the badge
+                                  Positioned(
+                                    top: 1,
+                                    right: 6,
+                                    child: CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.red,
+                                      child: Text(
+                                        '$ReamrkunreadCount',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            ],
                               ),
-                            ),
                           );
                         }),
                       ),

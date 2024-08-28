@@ -208,6 +208,13 @@ class _NoticeNotePageState extends State<NoticeNotePage> {
     return groupedNotes;
   }
 
+  Future<void> refreshNotices() async {
+    List<Notice> notices = await fetchNotices();
+    setState(() {
+      futureNotice = fetchNotices();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -231,6 +238,7 @@ class _NoticeNotePageState extends State<NoticeNotePage> {
             end: Alignment.bottomCenter,
           ),
         ),
+
         child: FutureBuilder<List<Notice>>(
           future: futureNotice,
           builder: (context, snapshot) {
@@ -332,9 +340,9 @@ class _NoticeNotePageState extends State<NoticeNotePage> {
                                               type: note.noticeType,
                                               // attachments: note.imageList,
                                               // date: note.noticeDate,
-                                              // readStatus: note.readStatus,
-                                              onTap: () {
-                                                Navigator.push(
+                                              readStatus: note.readStatus,
+                                              onTap: () async {
+                                                final result = await Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (_) =>
@@ -352,6 +360,9 @@ class _NoticeNotePageState extends State<NoticeNotePage> {
                                                             ),
                                                           ),
                                                     );
+                                                if (result == true) {
+                                                  refreshNotices();
+                                                }
                                                 },
                                             );
                                           }).toList(),

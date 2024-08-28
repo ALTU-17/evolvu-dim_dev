@@ -8,6 +8,7 @@ class NoticeNoteCard extends StatelessWidget {
   final String teacher;
   final String remarksubject;
   final String type;
+  final String readStatus;
   final VoidCallback onTap;
 
   const NoticeNoteCard({
@@ -15,15 +16,21 @@ class NoticeNoteCard extends StatelessWidget {
     required this.teacher,
     required this.remarksubject,
     required this.type,
+    required this.readStatus,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+
+    Color cardColor = readStatus == '0'
+        ? Colors.grey
+        : Colors.white;
+
     return GestureDetector(
       onTap: onTap,
         child: Card(
-          color: Colors.white,
+          color: cardColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),

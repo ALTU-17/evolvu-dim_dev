@@ -466,31 +466,54 @@ class _StudentFormState extends State<StudentForm> {
     return null;
   }
 
-  Future uploadImage(ImageSource source) async {
-    final image = await ImagePicker().pickImage(
-      source: source,
-    );
+  // Future<void> uploadImage(ImageSource source) async {
+  //   final image = await ImagePicker().pickImage(source: source);
+  //   if (image == null) return;
+  //
+  //   File imageFile = File(image.path);
+  //
+  //   // var croppedFile = await cropImage(imageFile);
+  //
+  //   if (imageFile != null) {
+  //     final bytes = io.File(image.path).readAsBytesSync();
+  //     // Uint8List _bytes = await imageFile.readAsBytes();
+  //     String base64Image =base64Encode(bytes);
+  //
+  //     // setState(() {
+  //     //   file = croppedFile;
+  //     // });
+  //
+  //     await uploadImageToServer( base64Image);
+  //
+  //     // setState(() {
+  //     //   imageUrl = imageUrl;
+  //     // });
+  //   }
+  // }
+
+  Future<void> uploadImage(ImageSource source) async {
+    final image = await ImagePicker().pickImage(source: source);
     if (image == null) return;
 
-    // Convert the image path to a File
     File imageFile = File(image.path);
 
     var croppedFile = await cropImage(imageFile);
 
-    // Update the file variable with the cropped image
-    setState(() {
-      file = croppedFile;
-    });
-    // Upload the cropped image to the server
-    imageUrl = await uploadImageToServer(croppedFile!);
+    if (croppedFile != null) {
+      String base64Image = base64Encode(croppedFile.readAsBytesSync());
 
-    // Set the image using the received URL
-    setState(() {
-      imageUrl = imageUrl;
-    });
+      setState(() {
+        file = croppedFile;
+      });
+
+       uploadImageToServer(croppedFile, base64Image);
+
+      setState(() {
+        imageUrl = imageUrl;
+      });
+    }
   }
 
-  // Function to crop the selected image using the image_cropper package
   Future<File?> cropImage(File pickedFile) async {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: pickedFile.path,
@@ -501,7 +524,7 @@ class _StudentFormState extends State<StudentForm> {
         CropAspectRatioPreset.ratio3x2,
         CropAspectRatioPreset.original,
         CropAspectRatioPreset.ratio4x3,
-        CropAspectRatioPreset.ratio16x9
+        CropAspectRatioPreset.ratio16x9,
       ],
       androidUiSettings: const AndroidUiSettings(
         toolbarTitle: 'Crop Image',
@@ -515,42 +538,59 @@ class _StudentFormState extends State<StudentForm> {
       ),
     );
 
-    // Returning the edited/cropped image if available, otherwise the original image
-    if (croppedFile != null) {
-      return File(croppedFile.path);
-    } else {
-      return File(pickedFile.path);
-    }
+    return croppedFile != null ? File(croppedFile.path) : pickedFile;
   }
 
-  Future<String> uploadImageToServer(File croppedImage) async {
-    // Create a multipart request using Dio package
-
+  Future<String> uploadImageToServer(File croppedImage, String base64Image) async {
     try {
-      // Make POST request to upload image
-      http.Response uploadresponse = await http.post(
-        Uri.parse("${url}get_student_profile_images_details"),
-        body: {'student_id': widget.studentId, 'short_name': shortName},
+      var response = await http.post(
+        Uri.parse("${url}upload_student_profile_image_into_folder"),
+        body: {
+          'student_id': widget.studentId,
+          'short_name': shortName,
+          'filename': widget.studentId+".jpg",
+          'doc_type_folder': 'student_image',
+          'filedata': base64Image,
+        },
       );
-      print('image_urlResponse body: ${uploadresponse.body}');
-      // Check if response is successful
-      if (uploadresponse.statusCode == 200) {
-        // Parse the response JSON and extract image URL
-        String uploadresponsestr = uploadresponse.body;
-        Map<String, dynamic> uploadresponsedata =
-            json.decode(uploadresponsestr);
-        imageUrl = uploadresponsedata["image_url"];
+
+      if (response.statusCode == 200) {
+        print("Error uploading image: $shortName");
+        // print("Error uploading image: $base64Image");
+        print("Error uploading image: $base64Image");
+
+        // Assuming the server responds with a JSON containing the image URL
+        var responseBody = jsonDecode(response.body);
+        print("Error uploading image: $responseBody");
+
+        Fluttertoast.showToast(
+          msg: "Profile Picture updated successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
         return imageUrl;
       } else {
-        // Handle error
+        Fluttertoast.showToast(
+          msg: "Profile Picture Not updated successfully",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
         throw Exception('Failed to upload image');
       }
     } catch (e) {
-      // Handle Dio errors
       print("Error uploading image: $e");
       throw Exception('Failed to upload image');
     }
   }
+
 
   bool isLoading = true;
 
@@ -665,19 +705,29 @@ class _StudentFormState extends State<StudentForm> {
                                   right: 0,
                                   top: 10.h,
                                   child: ClipRRect(
-                                    child: imageUrl.isNotEmpty
+                                    child: file != null
+                                        ? Image.file(
+                                      file!,
+                                      fit: BoxFit.contain,
+                                    )
+                                        : imageUrl.isNotEmpty
                                         ? Image.network(
-                                      imageUrl + '?timestamp=${DateTime.now().millisecondsSinceEpoch}',
+                                      imageUrl +
+                                          '?timestamp=${DateTime.now().millisecondsSinceEpoch}',
                                       fit: BoxFit.contain,
                                       errorBuilder: (context, error, stackTrace) {
                                         return Image.asset(
-                                          childInfo?.gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
+                                          childInfo?.gender == 'M'
+                                              ? 'assets/boy.png'
+                                              : 'assets/girl.png',
                                           fit: BoxFit.contain,
                                         );
                                       },
                                     )
                                         : Image.asset(
-                                      childInfo?.gender == 'M' ? 'assets/boy.png' : 'assets/girl.png',
+                                      childInfo?.gender == 'M'
+                                          ? 'assets/boy.png'
+                                          : 'assets/girl.png',
                                       fit: BoxFit.contain,
                                     ),
                                   ),

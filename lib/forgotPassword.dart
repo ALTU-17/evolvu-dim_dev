@@ -149,10 +149,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     print("www" + response.body);
 
     if (response.statusCode == 200) {
-      Fluttertoast.showToast(msg: "⚠ Password reset successfully.");
 
       final responseData = json.decode(response.body);
       if (responseData['status'] == true) {
+        Fluttertoast.showToast(msg: responseData['message']);
+
         showDialog(
           context: context,
           builder: (BuildContext context) {

@@ -248,7 +248,11 @@ class _StudentCardItemState extends State<StudentCardItem> {
           context,
           MaterialPageRoute(
             builder: (context) => StudentActivityPage(
+              reg_id: reg_id,
+              shortName: widget.shortName,
               studentId: widget.studentId,
+              academicYr: widget.academicYr,
+              url: widget.url,
               firstName: widget.firstName,
               rollNo: widget.rollNo,
               className: widget.className,
