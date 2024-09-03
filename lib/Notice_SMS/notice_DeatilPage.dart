@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:evolvu/common/common_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:evolvu/common/common_style.dart';
 import 'package:flutter/material.dart';
@@ -196,17 +197,32 @@ class _NoticeDetailPageState extends State<NoticeDetailPage> {
       ],
     );
   }
-  void downloadFile(String url, BuildContext context,String name) async {
-    var path = "/storage/emulated/0/Download/Evolvuschool/Parent/Notice/$name";
+  void downloadFile(String url, BuildContext context, String name) async {
+    var directory = Directory("/storage/emulated/0/Download/Evolvuschool/Parent/Notice");
+
+    // Ensure the directory exists
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+
+    var path = "${directory.path}/$name";
     var file = File(path);
-    var res = await get(Uri.parse(url));
-    file.writeAsBytes(res.bodyBytes);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Download/Evolvuschool/Parent/Notice/$name File downloaded successfully. '),
-      ),
-    );
+    try {
+      var res = await http.get(Uri.parse(url));
+      await file.writeAsBytes(res.bodyBytes);
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('File downloaded successfully: Download/Evolvuschool/Parent/Notice'),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to download file: $e'),
+        ),
+      );
+    }
   }
 }

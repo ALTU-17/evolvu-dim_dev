@@ -307,17 +307,32 @@ class TeacherDetailCard extends StatelessWidget {
       return false;
     }
   }
-  void downloadFile(String url, BuildContext context,String name) async {
-    var path = "/storage/emulated/0/Download/Evolvuschool/Parent/TeacherNote/$name";
+  void downloadFile(String url, BuildContext context, String name) async {
+    var directory = Directory("/storage/emulated/0/Download/Evolvuschool/Parent/TeacherNote");
+
+    // Ensure the directory exists
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+
+    var path = "${directory.path}/$name";
     var file = File(path);
-    var res = await get(Uri.parse(url));
-    file.writeAsBytes(res.bodyBytes);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Download/Evolvuschool/Parent/TeacherNote/$name File downloaded successfully. '),
-      ),
-    );
+    try {
+      var res = await http.get(Uri.parse(url));
+      await file.writeAsBytes(res.bodyBytes);
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('File downloaded successfully: Download/Evolvuschool/Parent/TeacherNote'),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to download file: $e'),
+        ),
+      );
+    }
   }
 }

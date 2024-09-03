@@ -361,18 +361,33 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     _teacherCommentController.dispose();
     super.dispose();
   }
-  void downloadFile(String url, BuildContext context,String name) async {
-    var path = "/storage/emulated/0/Download/Evolvuschool/Parent/Homework/$name";
+  void downloadFile(String url, BuildContext context, String name) async {
+    var directory = Directory("/storage/emulated/0/Download/Evolvuschool/Parent/Homework");
+
+    // Ensure the directory exists
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+
+    var path = "${directory.path}/$name";
     var file = File(path);
-    var res = await get(Uri.parse(url));
-    file.writeAsBytes(res.bodyBytes);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Download/Evolvuschool/Parent/Homework/$name File downloaded successfully. '),
-      ),
-    );
+    try {
+      var res = await http.get(Uri.parse(url));
+      await file.writeAsBytes(res.bodyBytes);
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('File downloaded successfully: Download/Evolvuschool/Parent/Homework'),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to download file: $e'),
+        ),
+      );
+    }
   }
 }
 

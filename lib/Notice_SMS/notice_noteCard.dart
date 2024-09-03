@@ -62,8 +62,7 @@ class NoticeNoteCard extends StatelessWidget {
                                 text: 'Created By: ',
                                 // style: Commonstyle.lableBold,
                                 style: TextStyle(
-
-                                  // color: Colors.red,
+                                  color: Colors.red,
                                   fontSize: 14,
                                 ),
                               ),
@@ -71,7 +70,7 @@ class NoticeNoteCard extends StatelessWidget {
                                 text: teacher,
                                 style: TextStyle(
                                   // color: Colors.red,
-                                  fontSize: 12,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],

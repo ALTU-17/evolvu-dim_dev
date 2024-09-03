@@ -170,6 +170,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
+                    Navigator.of(context).pop();
                   },
                   child: const Text('OK', style: TextStyle(
                       color: Colors.blueAccent, fontWeight: FontWeight.bold)),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:evolvu/Homework/homeWork_notePage.dart';
 import 'package:evolvu/Remark/remark_notePage.dart';
 import 'package:evolvu/login.dart';
@@ -15,7 +16,8 @@ import 'dart:math' as math;
 import '../ExamTimeTable/examTimeTable.dart';
 import '../ExamTimeTable/timeTable.dart';
 import '../Notice_SMS/notice_notePage.dart';
-import '../SmartChat_WebView.dart';
+import '../WebViewScreens/OnlineFeesPayment.dart';
+import '../WebViewScreens/SmartChat_WebView.dart';
 import '../common/rotatedDivider_Card.dart';
 
 class CardItem {
@@ -84,11 +86,19 @@ class _StudentActivityPageState extends State<StudentActivityPage> {
   String academic_yr = "";
   String reg_id = "";
   String url = "";
+  String durl = "";
   String imageUrl = "";
   int unreadCount = 0;
   int noticeunreadCount = 0;
   int TnoteunreadCount = 0;
   int ReamrkunreadCount = 0;
+  String receiptUrl = "";
+  String username = "";
+  late int receiptButton;
+  String paymentUrl="";
+  String paymentUrlShare="";
+  String smartchat_url="";
+  String encryptedUsername="";
 
   @override
   void initState() {
@@ -97,6 +107,7 @@ class _StudentActivityPageState extends State<StudentActivityPage> {
     fetchUnreadnotices();
     fetchUnreadTechetNotes();
     fetchUnreadRemark();
+    fetchDashboardData();
   }
 
   Future<void> _getSchoolInfo() async {
@@ -111,6 +122,7 @@ class _StudentActivityPageState extends State<StudentActivityPage> {
 
         academic_yr = logUrlsparsed['academic_yr'];
         reg_id = logUrlsparsed['reg_id'];
+        username = logUrlsparsed['user_id'];
 
         print('academic_yr ID: $academic_yr');
         print('reg_id: $reg_id');
@@ -127,6 +139,7 @@ class _StudentActivityPageState extends State<StudentActivityPage> {
 
         shortName = parsedData['short_name'];
         url = parsedData['url'];
+        durl = parsedData['project_url'];
 
         print('Short Name: $shortName');
         print('URL: $url');
@@ -176,6 +189,87 @@ class _StudentActivityPageState extends State<StudentActivityPage> {
       print('Error fetching image details: ${get_student_profile_images_details.statusCode}');
     }
   }
+  }
+
+  Future<void> fetchDashboardData() async {
+    final url = Uri.parse(widget.url +'show_icons_parentdashboard_apk');
+    // print('Receipt URL: $shortName');
+
+    try {
+      final response = await http.post(url,
+        body: {'short_name': widget.shortName},
+      );
+
+      if (response.statusCode == 200) {
+        print('response.body URL: ${response.body}');
+
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+        // Extract the required fields
+         receiptUrl = data['receipt_url'];
+         receiptButton = data['receipt_button'];
+         paymentUrl = data['payment_url'];
+        smartchat_url = data['smartchat_url'];
+        String ALLOWED_URI_CHARS = "@#&=*+-_.,:!?()/~'%";
+
+       String URi_username = customUriEncode(username, ALLOWED_URI_CHARS);
+         username = username;
+
+        String secretKey = 'aceventura@services';
+
+        String encryptedUsername = encryptUsername(username, secretKey);
+
+        paymentUrlShare = paymentUrl + "?reg_id=" + widget.reg_id +
+        "&academic_yr=" + widget.academicYr +  "&user_id=" + URi_username + "&encryptedUsername=" + encryptedUsername +"&short_name=" + shortName;
+
+        print('Encrypted Username: $paymentUrlShare');
+        print('Encrypted Username: $encryptedUsername');
+        // Use these values as needed
+        print('username URL: $username');
+        print('Receipt URL: $receiptUrl');
+        print('Receipt Button: $receiptButton');
+        print('Payment URL: $paymentUrl');
+        print('smartchat_url : $smartchat_url');
+
+        // You can store these values in variables or use them directly
+      } else {
+        print('Failed to load data: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  String customUriEncode(String input, String allowedChars) {
+    final StringBuffer encoded = StringBuffer();
+
+    for (int i = 0; i < input.length; i++) {
+      final String char = input[i];
+      if (allowedChars.contains(char)) {
+        encoded.write(char);  // Allow the character as-is
+      } else {
+        // Percent-encode the character
+        final List<int> bytes = utf8.encode(char);
+        for (final int byte in bytes) {
+          encoded.write('%${byte.toRadixString(16).toUpperCase()}');
+        }
+      }
+    }
+
+    return encoded.toString();
+  }
+  String encryptUsername(String username, String secretKey) {
+    // Combine the username and secretKey
+    String combined = username + secretKey;
+
+    // Convert the combined string to bytes
+    List<int> bytes = utf8.encode(combined);
+
+    // Perform SHA1 encryption
+    Digest sha1Result = sha1.convert(bytes);
+
+    // Return the encrypted value as a hexadecimal string
+    return sha1Result.toString();
   }
 
   Future<int> fetchUnreadHomeworkCount() async {
@@ -427,12 +521,9 @@ class _StudentActivityPageState extends State<StudentActivityPage> {
                             padding: EdgeInsets.all(12.0),
                             child: Text("ExamTimeTable"),
                           )
-
                         ],
                       ),
                     ),
-
-
                   ],
                 ),
 
@@ -451,7 +542,21 @@ class _StudentActivityPageState extends State<StudentActivityPage> {
               context,
           MaterialPageRoute(
             builder: (context) => WebViewPage(studentId: widget.studentId,shortName: shortName,academicYr: academic_yr
-                ,classId: widget.classId,secId:widget.secId),
+                ,classId: widget.classId,secId:widget.secId,smartchat_url:smartchat_url),
+          ),
+          );
+        },
+      ),
+
+      CardItem(
+        imagePath: 'assets/cashpayment.png',
+        title: 'Fees Payment',
+        onTap: (context) {
+          Navigator.push(
+              context,
+          MaterialPageRoute(
+            builder: (context) => PaymentWebview(studentId: widget.studentId,
+                regId: widget.reg_id,paymentUrlShare:paymentUrlShare,receiptUrl:receiptUrl,shortName: shortName,academicYr: academic_yr),
           ),
           );
         },
